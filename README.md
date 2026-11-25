@@ -10,7 +10,7 @@ npm run dev       # http://localhost:4321
 npm run build     # static output in dist/
 npm run check     # type-check
 ```
-
+     
 Requires Node 22.12+ (CI uses Node 24).
 
 ## Editing content
