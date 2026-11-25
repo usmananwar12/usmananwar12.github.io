@@ -27,7 +27,7 @@ export const experience: Role[] = [
       'Build blockchain applications across EVM, Starknet, Stellar, XRPL and Solana.',
       'Wire on-chain logic into backend services and frontend applications end to end.',
       'Work on DeFi, PayFi and real-world asset financing infrastructure.',
-      'Security-review protocol code before it ships, including the pre-production review of PayMate: 7 Low and Medium severity issues, all fixed before launch.',
+      'Audit protocol code before it ships, including the pre-production audit of PayMate: 16 unique findings, including 2 High and 10 Medium severity.',
     ],
     chains: ['EVM', 'Starknet', 'Stellar', 'XRPL', 'Solana'],
     stack: ['Solidity', 'Cairo', 'Foundry', 'Starknet Foundry', 'TypeScript', 'Next.js', 'Node.js'],

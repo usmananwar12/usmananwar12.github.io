@@ -70,7 +70,7 @@ import { links, clean } from '@/data/site';
     transition: background 0.3s var(--ease);
   }
   .row:hover {
-    background: rgba(255, 255, 255, 0.015);
+    background: rgb(var(--tint) / 0.015);
   }
   .idx {
     font-size: 12px;
@@ -79,7 +79,7 @@ import { links, clean } from '@/data/site';
     transition: color 0.3s var(--ease);
   }
   .row:hover .idx {
-    color: var(--accent);
+    color: var(--accent-text);
   }
   h3 {
     font-size: clamp(20px, 2.4vw, 26px);

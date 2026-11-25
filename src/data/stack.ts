@@ -31,7 +31,7 @@ export const stack: StackGroup[] = [
       { name: 'Stellar', tier: 'working' },
       { name: 'XRPL', tier: 'working' },
       { name: 'Solana', tier: 'working' },
-      { name: 'Smart Contract Security', tier: 'growing' },
+      { name: 'Smart Contract Security', tier: 'working' },
     ],
   },
   {

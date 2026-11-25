@@ -8,6 +8,9 @@ const tiers: { tier: Tier; desc: string }[] = [
   { tier: 'growing', desc: 'actively deepening' },
 ];
 const order: Record<Tier, number> = { core: 0, working: 1, growing: 2 };
+// Only show legend entries for tiers that are actually used.
+const used = new Set(stack.flatMap((g) => g.items.map((i) => i.tier)));
+const legend = tiers.filter((t) => used.has(t.tier));
 ---
 
 <section id="stack" class="section" aria-labelledby="stack-title">
@@ -18,7 +21,7 @@ const order: Record<Tier, number> = { core: 0, working: 1, growing: 2 };
 
     <ul class="legend mono" data-reveal aria-label="Legend">
       {
-        tiers.map((t) => (
+        legend.map((t) => (
           <li>
             <span class={`mark ${t.tier}`} aria-hidden="true" />
             <span class="t">{tierLabel[t.tier]}</span>
@@ -80,7 +83,7 @@ const order: Record<Tier, number> = { core: 0, working: 1, growing: 2 };
   }
   .mark.core {
     background: var(--accent);
-    box-shadow: 0 0 10px rgba(124, 245, 200, 0.5);
+    box-shadow: 0 0 10px rgb(var(--accent-rgb) / 0.5);
   }
   .mark.working {
     background: linear-gradient(90deg, var(--accent) 50%, transparent 50%);
@@ -103,7 +106,7 @@ const order: Record<Tier, number> = { core: 0, working: 1, growing: 2 };
     transition: background 0.3s var(--ease);
   }
   .group:hover {
-    background: rgba(255, 255, 255, 0.015);
+    background: rgb(var(--tint) / 0.015);
   }
   .group-head {
     margin-bottom: 22px;

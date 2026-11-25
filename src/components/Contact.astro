@@ -68,8 +68,9 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
     border: 1px solid var(--line);
     border-radius: 20px;
     background:
-      radial-gradient(ellipse 60% 80% at 100% 0%, rgba(124, 245, 200, 0.07), transparent 60%),
-      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.005));
+      radial-gradient(ellipse 60% 80% at 100% 0%, rgb(var(--accent-rgb) / 0.07), transparent 60%),
+      var(--card-bg);
+    box-shadow: var(--card-shadow);
     overflow: hidden;
   }
   h2 {
@@ -112,10 +113,10 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
     word-break: break-all;
   }
   .email:hover {
-    border-color: var(--accent);
+    border-color: var(--accent-text);
   }
   .email :global(svg) {
-    color: var(--accent);
+    color: var(--accent-text);
     flex: none;
   }
   .copy {
@@ -135,14 +136,14 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
   }
   .copy:hover {
     color: var(--fg);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(var(--tint) / 0.05);
   }
   .copy-label {
     font-size: 12px;
   }
   .copy :global(.i-check) {
     display: none;
-    color: var(--accent);
+    color: var(--accent-text);
   }
   .copy.done :global(.i-check) {
     display: block;
@@ -169,14 +170,14 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
     padding: 16px 18px;
     border: 1px solid var(--line);
     border-radius: 12px;
-    background: rgba(255, 255, 255, 0.015);
+    background: rgb(var(--tint) / 0.015);
     transition:
       border-color 0.25s var(--ease),
       background 0.25s var(--ease);
   }
   .channel:hover {
     border-color: var(--line-strong);
-    background: rgba(255, 255, 255, 0.035);
+    background: rgb(var(--tint) / 0.035);
   }
   .cl {
     font-size: 15px;

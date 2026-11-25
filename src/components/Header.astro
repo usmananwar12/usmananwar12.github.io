@@ -30,6 +30,17 @@ const nav = [
     </nav>
 
     <div class="actions">
+      <button class="theme-btn" type="button" aria-label="Switch to light theme" data-theme-toggle>
+        <svg class="sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <circle cx="12" cy="12" r="4"></circle>
+          <path
+            d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4 6 18M18 6l1.4-1.4"
+          ></path>
+        </svg>
+        <svg class="moon" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"></path>
+        </svg>
+      </button>
       <a href="/#contact" class="btn btn-ghost cta">Contact</a>
       <button
         class="menu-btn"
@@ -70,7 +81,7 @@ const nav = [
   }
   .header.is-scrolled,
   .header.is-open {
-    background: rgba(8, 9, 10, 0.72);
+    background: var(--header-bg);
     backdrop-filter: saturate(160%) blur(14px);
     -webkit-backdrop-filter: saturate(160%) blur(14px);
     border-bottom-color: var(--line);
@@ -106,7 +117,7 @@ const nav = [
   }
   .nav a:hover {
     color: var(--fg);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(var(--tint) / 0.05);
   }
   .actions {
     display: flex;
@@ -117,6 +128,49 @@ const nav = [
     --h: 34px;
     padding: 0 14px;
     font-size: 13.5px;
+  }
+  .theme-btn {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      color 0.2s var(--ease),
+      background 0.2s var(--ease);
+  }
+  .theme-btn:hover {
+    color: var(--fg);
+    background: rgb(var(--tint) / 0.05);
+  }
+  .theme-btn svg {
+    position: absolute;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition:
+      transform 0.45s var(--ease),
+      opacity 0.3s var(--ease);
+  }
+  /* dark theme shows the sun (switch to light); light theme shows the moon */
+  .theme-btn .moon {
+    opacity: 0;
+    transform: rotate(-60deg) scale(0.6);
+  }
+  :global([data-theme='light']) .theme-btn .sun {
+    opacity: 0;
+    transform: rotate(60deg) scale(0.6);
+  }
+  :global([data-theme='light']) .theme-btn .moon {
+    opacity: 1;
+    transform: none;
   }
   .menu-btn {
     display: none;
@@ -177,6 +231,24 @@ const nav = [
 </style>
 
 <script>
+  const root = document.documentElement;
+  const themeBtn = document.querySelector<HTMLButtonElement>('[data-theme-toggle]')!;
+  const themeMeta = document.querySelector('[data-theme-color]');
+  const syncThemeLabel = () => {
+    const light = root.dataset.theme === 'light';
+    themeBtn.setAttribute('aria-label', light ? 'Switch to dark theme' : 'Switch to light theme');
+  };
+  syncThemeLabel();
+  themeBtn.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    root.dataset.theme = next;
+    themeMeta?.setAttribute('content', next === 'light' ? '#f7f7f5' : '#08090a');
+    try {
+      localStorage.setItem('theme', next);
+    } catch {}
+    syncThemeLabel();
+  });
+
   const header = document.querySelector<HTMLElement>('[data-header]')!;
   const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]')!;
   const menu = document.querySelector<HTMLElement>('[data-menu]')!;

@@ -16,7 +16,7 @@ const readout = [
   { k: 'writes', v: 'Solidity · Cairo · Rust · TypeScript' },
   { k: 'builds', v: 'Lending pools · Liquidity · Treasury' },
   { k: 'domain', v: 'DeFi · PayFi · RWA' },
-  { k: 'security', v: 'Protocol reviews · ChainSec' },
+  { k: 'security', v: 'Protocol audits · ChainSec' },
 ];
 
 const dev = import.meta.env.DEV;
@@ -43,8 +43,8 @@ const dev = import.meta.env.DEV;
       <div class="copy">
         <p class="lede" data-reveal style="--d:2">
           I ship smart contracts, lending pools and treasury systems across EVM, Starknet, Stellar, XRPL and Solana,
-          and the backends and interfaces that put them in front of real businesses. Increasingly, I spend my time on the
-          other side of the code: reviewing protocols for the ways they fail.
+          and the backends and interfaces that put them in front of real businesses. Then I audit them, line by line,
+          for the ways they fail, before they ship.
         </p>
 
         <div class="cta" data-reveal style="--d:3">
@@ -118,7 +118,7 @@ const dev = import.meta.env.DEV;
     padding: 6px 12px 6px 10px;
     border: 1px solid var(--line);
     border-radius: 999px;
-    background: rgba(255, 255, 255, 0.02);
+    background: rgb(var(--tint) / 0.02);
     margin-bottom: 32px;
   }
   .live {
@@ -168,14 +168,14 @@ const dev = import.meta.env.DEV;
     letter-spacing: -0.045em;
     font-weight: 580;
     text-wrap: balance;
-    background: linear-gradient(180deg, #fff 30%, rgba(255, 255, 255, 0.72));
+    background: linear-gradient(180deg, var(--heading-from) 30%, var(--heading-to));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .headline .dim {
     display: block;
-    background: linear-gradient(90deg, var(--fg-subtle), #8b9098);
+    background: linear-gradient(90deg, var(--fg-subtle), var(--dim-to));
     -webkit-background-clip: text;
     background-clip: text;
   }
@@ -209,17 +209,15 @@ const dev = import.meta.env.DEV;
   }
   .socials a:hover {
     color: var(--fg);
-    background: rgba(255, 255, 255, 0.05);
+    background: rgb(var(--tint) / 0.05);
   }
 
   /* readout panel */
   .readout {
     border: 1px solid var(--line);
     border-radius: var(--radius);
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.01));
-    box-shadow:
-      0 1px 0 rgba(255, 255, 255, 0.05) inset,
-      0 30px 80px -30px rgba(0, 0, 0, 0.8);
+    background: var(--card-bg);
+    box-shadow: var(--card-shadow);
     overflow: hidden;
   }
   .readout-head,
@@ -241,7 +239,7 @@ const dev = import.meta.env.DEV;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    color: var(--accent);
+    color: var(--accent-text);
   }
   .status .live {
     width: 6px;
@@ -260,7 +258,7 @@ const dev = import.meta.env.DEV;
     transition: background 0.2s var(--ease);
   }
   .row:hover {
-    background: rgba(255, 255, 255, 0.025);
+    background: rgb(var(--tint) / 0.025);
   }
   dt {
     font-size: 12px;

@@ -39,7 +39,7 @@ const personLd = {
     <meta name="description" content={description} />
     <meta name="keywords" content={site.keywords.join(', ')} />
     <meta name="author" content={site.name} />
-    <meta name="theme-color" content="#08090a" />
+    <meta name="theme-color" content="#08090a" data-theme-color />
     <link rel="canonical" href={canonical} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
@@ -67,7 +67,18 @@ const personLd = {
 
     <script is:inline type="application/ld+json" set:html={JSON.stringify(personLd)} />
     <script is:inline>
-      document.documentElement.classList.add('js');
+      // Runs before paint: apply the saved theme (dark by default) to avoid a flash.
+      (function () {
+        var root = document.documentElement;
+        root.classList.add('js');
+        var theme = 'dark';
+        try {
+          theme = localStorage.getItem('theme') === 'light' ? 'light' : 'dark';
+        } catch (e) {}
+        root.dataset.theme = theme;
+        var meta = document.querySelector('[data-theme-color]');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f7f7f5' : '#08090a');
+      })();
     </script>
   </head>
   <body>

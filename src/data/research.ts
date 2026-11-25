@@ -1,7 +1,7 @@
 /**
  * Security research data.
  *
- * - Security reviews: add an entry to `reviews` (only publicly shareable details).
+ * - Audits: add an entry to `audits` (only publicly shareable details).
  * - Writeups live as Markdown files in src/content/research/ (see _template.md).
  * - Audit contests: add an entry to `contests` when you take part in one.
  * - Tools & experiments: add an entry to `experiments`.
@@ -19,28 +19,36 @@ export const focusAreas = [
   { title: 'AI-assisted analysis', detail: 'Using LLM tooling to widen coverage of manual review, not replace it.' },
 ];
 
-export interface Review {
+export type Severity = 'high' | 'medium' | 'low';
+
+export interface Audit {
   target: string;
-  context: string;
-  method: string;
-  summary: string;
-  stats: { value: string; label: string }[];
-  note?: string;
-  href?: string;
+  subtitle: string;
+  engagement: string;
+  period: string;
+  scope: string;
+  method: string[];
+  /** Unique findings after consolidating every review pass (duplicates counted once). */
+  severity: Record<Severity, number>;
+  note: string;
 }
 
-export const reviews: Review[] = [
+export const audits: Audit[] = [
   {
     target: 'PayMate',
-    context: 'Pre-production review',
-    method: 'Manual review + AI-assisted analysis (ChainSec)',
-    summary:
-      "Security review of PayMate's smart contracts ahead of production: a manual, line-by-line review run alongside an AI-assisted pass with ChainSec, my own audit tooling.",
-    stats: [
-      { value: '7', label: 'Low & Medium severity issues found in manual review' },
-      { value: '7/7', label: 'Fixed before production' },
+    subtitle: 'Prefunding protocol',
+    engagement: 'Private audit · DeFa by InvoiceMate',
+    period: 'Aug – Sep 2026',
+    scope:
+      'Pool lifecycle, factory, treasury reserve, TVL tracking and fixed-point math: deposits, drawdowns, repayments, fee accrual, defaults and terminal settlement.',
+    method: [
+      'Manual line-by-line review',
+      'Adversarial state-transition analysis',
+      'Multi-agent AI analysis',
+      'Proof-of-concept exploit tests',
     ],
-    note: 'The AI-assisted pass surfaced a broad set of findings of its own. All seven manual findings were issues it missed, which is why I treat AI tooling as a way to widen coverage rather than a replacement for careful human review.',
+    severity: { high: 2, medium: 10, low: 4 },
+    note: 'Findings from every review pass were consolidated into a single report and de-duplicated by root cause.',
   },
 ];
 
