@@ -1,0 +1,144 @@
+---
+import SectionHead from './SectionHead.astro';
+import { stack, tierLabel, type Tier } from '@/data/stack';
+
+const tiers: { tier: Tier; desc: string }[] = [
+  { tier: 'core', desc: 'daily, in production' },
+  { tier: 'working', desc: 'regular, ship with confidence' },
+  { tier: 'growing', desc: 'actively deepening' },
+];
+const order: Record<Tier, number> = { core: 0, working: 1, growing: 2 };
+---
+
+<section id="stack" class="section" aria-labelledby="stack-title">
+  <div class="container">
+    <SectionHead index="04" label="Stack" id="stack-title">
+      Tools I reach for, <span class="dim">honestly ranked.</span>
+    </SectionHead>
+
+    <ul class="legend mono" data-reveal aria-label="Legend">
+      {
+        tiers.map((t) => (
+          <li>
+            <span class={`mark ${t.tier}`} aria-hidden="true" />
+            <span class="t">{tierLabel[t.tier]}</span>
+            <span class="d">{t.desc}</span>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="groups">
+      {
+        stack.map((g, gi) => (
+          <div class="group" data-reveal style={`--d:${gi}`}>
+            <div class="group-head">
+              <h3>{g.label}</h3>
+              <p class="mono">{g.note}</p>
+            </div>
+            <ul>
+              {[...g.items]
+                .sort((a, b) => order[a.tier] - order[b.tier])
+                .map((item) => (
+                  <li>
+                    <span class={`mark ${item.tier}`} aria-hidden="true" />
+                    <span class="item">{item.name}</span>
+                    <span class="sr-only">({tierLabel[item.tier]})</span>
+                  </li>
+                ))}
+            </ul>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>
+
+<style>
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px 28px;
+    font-size: 12px;
+    color: var(--fg-subtle);
+    margin-bottom: 28px;
+  }
+  .legend li {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .legend .t {
+    color: var(--fg-muted);
+  }
+
+  .mark {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex: none;
+  }
+  .mark.core {
+    background: var(--accent);
+    box-shadow: 0 0 10px rgba(124, 245, 200, 0.5);
+  }
+  .mark.working {
+    background: linear-gradient(90deg, var(--accent) 50%, transparent 50%);
+    border: 1px solid var(--accent);
+  }
+  .mark.growing {
+    border: 1px solid var(--fg-subtle);
+  }
+
+  .groups {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+    border-left: 1px solid var(--line);
+  }
+  .group {
+    padding: 28px 24px 32px;
+    border-right: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    transition: background 0.3s var(--ease);
+  }
+  .group:hover {
+    background: rgba(255, 255, 255, 0.015);
+  }
+  .group-head {
+    margin-bottom: 22px;
+  }
+  h3 {
+    font-size: 16px;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+  }
+  .group-head p {
+    font-size: 12px;
+    color: var(--fg-subtle);
+    margin-top: 4px;
+  }
+  .group ul {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .group li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 15px;
+    color: var(--fg);
+  }
+
+  @media (max-width: 960px) {
+    .groups {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 520px) {
+    .groups {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

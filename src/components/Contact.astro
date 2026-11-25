@@ -1,0 +1,248 @@
+---
+import Icon from './Icon.astro';
+import { links, clean, handle, isPlaceholder } from '@/data/site';
+
+const email = clean(links.email);
+const dev = import.meta.env.DEV;
+
+const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x' | 'telegram'; alt?: string }[] = [
+  { label: 'GitHub', href: links.github, icon: 'github', alt: links.githubAlt },
+  { label: 'LinkedIn', href: links.linkedin, icon: 'linkedin' },
+  { label: 'X', href: links.x, icon: 'x' },
+  { label: 'Telegram', href: links.telegram, icon: 'telegram' },
+];
+---
+
+<section id="contact" class="section contact" aria-labelledby="contact-title">
+  <div class="container">
+    <div class="panel spotlight" data-reveal>
+      <p class="section-index"><span>06</span><span aria-hidden="true">/</span><span>Contact</span></p>
+      <h2 id="contact-title">
+        Building something that has to hold up?{' '}
+        <span class="dim">Let's talk.</span>
+      </h2>
+      <p class="sub">
+        Open to conversations with Web3 founders, engineering teams and fellow security researchers about protocol
+        engineering, DeFi infrastructure and smart contract security.
+      </p>
+
+      <div class="email-row">
+        <a href={`mailto:${email}`} class:list={['email', { placeholder: dev && isPlaceholder(links.email) }]}>
+          <Icon name="mail" size={20} />
+          <span>{email}</span>
+        </a>
+        <button type="button" class="copy" data-copy={email} aria-label="Copy email address">
+          <Icon name="copy" size={16} class="i-copy" />
+          <Icon name="check" size={16} class="i-check" />
+          <span class="copy-label mono" aria-live="polite">Copy</span>
+        </button>
+      </div>
+
+      <ul class="channels">
+        {
+          channels.map((c) => (
+            <li class:list={['channel', { placeholder: dev && isPlaceholder(c.href) }]}>
+              <Icon name={c.icon} size={16} />
+              <a href={clean(c.href)} target="_blank" rel="me noopener noreferrer" class="cl stretched">
+                {c.label}
+              </a>
+              <span class="mono ch">{handle(c.href)}</span>
+              {c.alt && (
+                <a href={clean(c.alt)} target="_blank" rel="me noopener noreferrer" class="mono ch alt">
+                  also {handle(c.alt)}
+                </a>
+              )}
+              <Icon name="arrow-up-right" size={14} class="go" />
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </div>
+</section>
+
+<style>
+  .panel {
+    position: relative;
+    padding: clamp(32px, 6vw, 72px);
+    border: 1px solid var(--line);
+    border-radius: 20px;
+    background:
+      radial-gradient(ellipse 60% 80% at 100% 0%, rgba(124, 245, 200, 0.07), transparent 60%),
+      linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.005));
+    overflow: hidden;
+  }
+  h2 {
+    margin-top: 24px;
+    font-size: clamp(32px, 5vw, 56px);
+    line-height: 1.04;
+    letter-spacing: -0.045em;
+    font-weight: 580;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+  .dim {
+    color: var(--fg-subtle);
+  }
+  .sub {
+    margin-top: 20px;
+    max-width: 58ch;
+    color: var(--fg-muted);
+    font-size: 16.5px;
+    line-height: 1.65;
+  }
+
+  .email-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 40px;
+  }
+  .email {
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    font-size: clamp(18px, 2.6vw, 26px);
+    letter-spacing: -0.025em;
+    font-weight: 500;
+    padding-bottom: 4px;
+    border-bottom: 1px solid var(--line-strong);
+    transition: border-color 0.3s var(--ease);
+    word-break: break-all;
+  }
+  .email:hover {
+    border-color: var(--accent);
+  }
+  .email :global(svg) {
+    color: var(--accent);
+    flex: none;
+  }
+  .copy {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 34px;
+    padding: 0 12px;
+    border-radius: 999px;
+    border: 1px solid var(--line-strong);
+    background: transparent;
+    color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      color 0.2s var(--ease),
+      background 0.2s var(--ease);
+  }
+  .copy:hover {
+    color: var(--fg);
+    background: rgba(255, 255, 255, 0.05);
+  }
+  .copy-label {
+    font-size: 12px;
+  }
+  .copy :global(.i-check) {
+    display: none;
+    color: var(--accent);
+  }
+  .copy.done :global(.i-check) {
+    display: block;
+  }
+  .copy.done :global(.i-copy) {
+    display: none;
+  }
+
+  .channels {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin-top: 48px;
+  }
+  .channel {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    grid-template-rows: auto auto;
+    column-gap: 10px;
+    row-gap: 2px;
+    align-items: center;
+    align-content: start;
+    padding: 16px 18px;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.015);
+    transition:
+      border-color 0.25s var(--ease),
+      background 0.25s var(--ease);
+  }
+  .channel:hover {
+    border-color: var(--line-strong);
+    background: rgba(255, 255, 255, 0.035);
+  }
+  .cl {
+    font-size: 15px;
+    font-weight: 520;
+  }
+  /* whole card is clickable via the primary link; the secondary link sits above it */
+  .stretched::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+  }
+  .alt {
+    position: relative;
+    z-index: 1;
+    transition: color 0.2s var(--ease);
+  }
+  .alt:hover {
+    color: var(--fg);
+  }
+  .ch {
+    grid-column: 2 / 4;
+    font-size: 12px;
+    color: var(--fg-subtle);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .channel :global(.go) {
+    grid-column: 3;
+    grid-row: 1;
+    color: var(--fg-subtle);
+    transition: transform 0.3s var(--ease);
+  }
+  .channel:hover :global(.go) {
+    transform: translate(2px, -2px);
+    color: var(--fg);
+  }
+
+  @media (max-width: 960px) {
+    .channels {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+  @media (max-width: 560px) {
+    .channels {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
+    const label = btn.querySelector('.copy-label');
+    btn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(btn.dataset.copy ?? '');
+        btn.classList.add('done');
+        if (label) label.textContent = 'Copied';
+        setTimeout(() => {
+          btn.classList.remove('done');
+          if (label) label.textContent = 'Copy';
+        }, 1800);
+      } catch {
+        window.location.href = `mailto:${btn.dataset.copy}`;
+      }
+    });
+  });
+</script>

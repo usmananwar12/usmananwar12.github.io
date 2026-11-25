@@ -1,0 +1,145 @@
+---
+import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
+import { projects } from '@/data/projects';
+import { links, clean } from '@/data/site';
+---
+
+<section id="work" class="section" aria-labelledby="work-title">
+  <div class="container">
+    <SectionHead index="03" label="Selected Work" id="work-title">
+      Protocols and products <span class="dim">I've helped build.</span>
+    </SectionHead>
+
+    <ul class="list">
+      {
+        projects.map((p, i) => {
+          const Tag = p.href ? 'a' : 'div';
+          return (
+            <li data-reveal style={`--d:${i % 4}`}>
+              <Tag
+                class:list={['row spotlight', { linked: !!p.href }]}
+                {...(p.href ? { href: p.href, target: '_blank', rel: 'noopener noreferrer' } : {})}
+              >
+                <span class="mono idx">{String(i + 1).padStart(2, '0')}</span>
+                <div class="title">
+                  <h3>{p.name}</h3>
+                  <p class="tagline">{p.tagline}</p>
+                </div>
+                <div class="detail">
+                  <p>{p.description}</p>
+                  <p class="mono context">{p.context}</p>
+                </div>
+                <ul class="tags" aria-label="Tags">
+                  {p.tags.map((t) => (
+                    <li class="pill">{t}</li>
+                  ))}
+                </ul>
+                {p.href && <Icon name="arrow-up-right" size={18} class="go" />}
+              </Tag>
+            </li>
+          );
+        })
+      }
+    </ul>
+
+    <p class="more" data-reveal>
+      <a href={clean(links.github)} target="_blank" rel="noopener noreferrer" class="btn btn-ghost">
+        More on GitHub <Icon name="arrow-up-right" />
+      </a>
+    </p>
+  </div>
+</section>
+
+<style>
+  .list {
+    border-top: 1px solid var(--line);
+  }
+  .list > li {
+    border-bottom: 1px solid var(--line);
+  }
+  .row {
+    display: grid;
+    /* last column holds the link arrow; kept on every row so columns line up */
+    grid-template-columns: 48px minmax(0, 1fr) minmax(0, 1.3fr) minmax(0, 0.9fr) 20px;
+    gap: 16px 32px;
+    align-items: start;
+    padding: 32px 16px;
+    margin-inline: -16px;
+    border-radius: 12px;
+    transition: background 0.3s var(--ease);
+  }
+  .row:hover {
+    background: rgba(255, 255, 255, 0.015);
+  }
+  .idx {
+    font-size: 12px;
+    color: var(--fg-subtle);
+    padding-top: 6px;
+    transition: color 0.3s var(--ease);
+  }
+  .row:hover .idx {
+    color: var(--accent);
+  }
+  h3 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    font-weight: 560;
+    letter-spacing: -0.035em;
+    line-height: 1.2;
+  }
+  .tagline {
+    margin-top: 6px;
+    font-size: 14.5px;
+    color: var(--fg-subtle);
+  }
+  .detail p:first-child {
+    color: var(--fg-muted);
+    font-size: 15.5px;
+    line-height: 1.65;
+    padding-top: 3px;
+  }
+  .context {
+    margin-top: 10px;
+    font-size: 12px;
+    color: var(--fg-subtle);
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    justify-content: flex-end;
+    padding-top: 3px;
+  }
+  .row :global(.go) {
+    color: var(--fg-subtle);
+    margin-top: 6px;
+    transition:
+      transform 0.3s var(--ease),
+      color 0.3s var(--ease);
+  }
+  .row:hover :global(.go) {
+    color: var(--fg);
+    transform: translate(2px, -2px);
+  }
+  .more {
+    margin-top: 40px;
+  }
+
+  @media (max-width: 960px) {
+    .row,
+    .linked {
+      grid-template-columns: 32px minmax(0, 1fr);
+      column-gap: 16px;
+    }
+    .detail,
+    .tags {
+      grid-column: 2;
+    }
+    .tags {
+      justify-content: flex-start;
+    }
+    .row :global(.go) {
+      display: none;
+    }
+  }
+</style>

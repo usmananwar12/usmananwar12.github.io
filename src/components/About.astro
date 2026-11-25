@@ -1,0 +1,148 @@
+---
+import SectionHead from './SectionHead.astro';
+
+// Draft philosophy. Edit these to match how you actually think about engineering.
+const principles = [
+  {
+    title: 'Contracts are the product.',
+    body: 'Code that holds capital does not get a quiet hotfix. I design for the failure cases first and the happy path second.',
+  },
+  {
+    title: 'Own the whole path.',
+    body: 'From storage layout to the button a user presses, a system is only as clear as its weakest seam. I like working across all of it.',
+  },
+  {
+    title: 'Invariants over intuition.',
+    body: 'Write down what must always be true, then test it, fuzz it and try to break it before someone else does.',
+  },
+];
+
+const interests = [
+  'DeFi & PayFi',
+  'Real-world asset financing',
+  'Lending & liquidity design',
+  'Multi-chain systems',
+  'Smart contract security',
+  'AI-assisted engineering',
+];
+---
+
+<section id="about" class="section" aria-labelledby="about-title">
+  <div class="container">
+    <SectionHead index="01" label="About" id="about-title">
+      An engineer who works <span class="dim">where code meets capital.</span>
+    </SectionHead>
+
+    <div class="grid">
+      <div class="bio" data-reveal>
+        <p class="lead">
+          I'm a Computer Science graduate from FAST-NUCES and a full-stack Web3 engineer based in Pakistan.
+        </p>
+        <p>
+          My work sits in the part of Web3 that has to hold up in the real world: protocols that connect PayFi and
+          TradFi dealflow with on-chain liquidity, where the contracts move real value and real businesses depend on
+          them.
+        </p>
+        <p>
+          I'm comfortable across the whole stack: Solidity and Cairo on-chain, Node.js services in the middle,
+          React and Next.js at the edge. Lately I've been pointing that same depth at security, reading protocol code
+          adversarially and asking what breaks.
+        </p>
+
+        <div class="interests">
+          <p class="mono label">Areas of interest</p>
+          <ul>
+            {interests.map((i) => <li class="pill">{i}</li>)}
+          </ul>
+        </div>
+      </div>
+
+      <ol class="principles">
+        {
+          principles.map((p, i) => (
+            <li data-reveal style={`--d:${i + 1}`}>
+              <span class="mono num">{String(i + 1).padStart(2, '0')}</span>
+              <div>
+                <h3>{p.title}</h3>
+                <p>{p.body}</p>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: 200px minmax(0, 1fr) minmax(0, 1fr);
+    gap: 48px;
+  }
+  .bio {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    color: var(--fg-muted);
+    font-size: 16.5px;
+    line-height: 1.7;
+  }
+  .bio .lead {
+    color: var(--fg);
+    font-size: 19px;
+    line-height: 1.55;
+    letter-spacing: -0.015em;
+  }
+  .interests {
+    margin-top: 14px;
+  }
+  .label {
+    font-size: 12px;
+    color: var(--fg-subtle);
+    margin-bottom: 12px;
+  }
+  .interests ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .principles {
+    grid-column: 3;
+    border-top: 1px solid var(--line);
+  }
+  .principles li {
+    display: grid;
+    grid-template-columns: 36px 1fr;
+    gap: 12px;
+    padding: 24px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .num {
+    font-size: 12px;
+    color: var(--accent);
+    padding-top: 4px;
+  }
+  h3 {
+    font-size: 17px;
+    font-weight: 560;
+    letter-spacing: -0.02em;
+    margin-bottom: 6px;
+  }
+  .principles p {
+    color: var(--fg-muted);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  @media (max-width: 960px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+    .bio,
+    .principles {
+      grid-column: auto;
+    }
+  }
+</style>

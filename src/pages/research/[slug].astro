@@ -1,0 +1,159 @@
+---
+import { getCollection, render } from 'astro:content';
+import Base from '@/layouts/Base.astro';
+
+export async function getStaticPaths() {
+  const entries = await getCollection('research', (e) => !e.data.draft);
+  return entries.map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const date = entry.data.date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+---
+
+<Base title={entry.data.title} description={entry.data.summary} type="article" publishedTime={entry.data.date}>
+  <article class="container post">
+    <a href="/#research" class="back mono">← Security research</a>
+    <header>
+      <p class="mono meta">
+        <time datetime={entry.data.date.toISOString()}>{date}</time> · {entry.data.kind}
+      </p>
+      <h1>{entry.data.title}</h1>
+      <p class="summary">{entry.data.summary}</p>
+      {
+        entry.data.tags.length > 0 && (
+          <ul class="tags">
+            {entry.data.tags.map((t) => (
+              <li class="pill">{t}</li>
+            ))}
+          </ul>
+        )
+      }
+    </header>
+    <div class="prose">
+      <Content />
+    </div>
+  </article>
+</Base>
+
+<style>
+  .post {
+    max-width: 760px;
+    padding-top: 64px;
+    padding-bottom: 120px;
+  }
+  .back {
+    font-size: 12.5px;
+    color: var(--fg-subtle);
+    transition: color 0.2s var(--ease);
+  }
+  .back:hover {
+    color: var(--fg);
+  }
+  header {
+    margin: 40px 0 48px;
+    padding-bottom: 32px;
+    border-bottom: 1px solid var(--line);
+  }
+  .meta {
+    font-size: 12.5px;
+    color: var(--accent);
+  }
+  h1 {
+    margin-top: 14px;
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.08;
+    letter-spacing: -0.04em;
+    font-weight: 580;
+    text-wrap: balance;
+  }
+  .summary {
+    margin-top: 16px;
+    font-size: 18px;
+    color: var(--fg-muted);
+    line-height: 1.6;
+  }
+  .tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 20px;
+  }
+
+  .prose {
+    font-size: 17px;
+    line-height: 1.75;
+    color: #d6d8dc;
+  }
+  .prose :global(> * + *) {
+    margin-top: 1.2em;
+  }
+  .prose :global(h2) {
+    margin-top: 2.2em;
+    font-size: 24px;
+    letter-spacing: -0.03em;
+    color: var(--fg);
+    font-weight: 580;
+  }
+  .prose :global(h3) {
+    margin-top: 1.8em;
+    font-size: 19px;
+    letter-spacing: -0.02em;
+    color: var(--fg);
+  }
+  .prose :global(a) {
+    color: var(--accent);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+  .prose :global(ul),
+  .prose :global(ol) {
+    padding-left: 1.3em;
+  }
+  .prose :global(ul) {
+    list-style: disc;
+  }
+  .prose :global(ol) {
+    list-style: decimal;
+  }
+  .prose :global(li + li) {
+    margin-top: 0.4em;
+  }
+  .prose :global(code) {
+    font-family: var(--font-mono);
+    font-size: 0.88em;
+  }
+  .prose :global(:not(pre) > code) {
+    padding: 0.15em 0.4em;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--line);
+  }
+  .prose :global(pre) {
+    padding: 20px 22px;
+    border-radius: 12px;
+    border: 1px solid var(--line);
+    overflow-x: auto;
+    font-size: 14px;
+    line-height: 1.65;
+  }
+  .prose :global(blockquote) {
+    margin-inline: 0;
+    padding-left: 18px;
+    border-left: 2px solid var(--accent);
+    color: var(--fg-muted);
+  }
+  .prose :global(table) {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 15px;
+  }
+  .prose :global(th),
+  .prose :global(td) {
+    text-align: left;
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--line);
+  }
+</style>

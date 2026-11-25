@@ -1,0 +1,237 @@
+---
+import SectionHead from './SectionHead.astro';
+import Icon from './Icon.astro';
+import { experience } from '@/data/experience';
+
+const dev = import.meta.env.DEV;
+const isTodo = (s: string) => s.includes('TODO');
+// Until a real start date is set, show "Current role" instead of a fake date.
+const showPeriod = (s: string) => (isTodo(s) ? 'Current role' : s);
+---
+
+<section id="experience" class="section" aria-labelledby="experience-title">
+  <div class="container">
+    <SectionHead index="02" label="Experience" id="experience-title">
+      Shipping DeFi infrastructure <span class="dim">across five ecosystems.</span>
+    </SectionHead>
+
+    <ol class="timeline">
+      {
+        experience.map((job) => (
+          <li class="job" data-reveal>
+            <div class="meta">
+              <p class:list={['mono period', { placeholder: dev && isTodo(job.period) }]}>{showPeriod(job.period)}</p>
+              <ul class="chains" aria-label="Chains">
+                {job.chains.map((c) => (
+                  <li class="pill">{c}</li>
+                ))}
+              </ul>
+            </div>
+
+            <div class="body">
+              <h3>
+                <span class="role">{job.role}</span>
+                <span class="at">
+                  {job.companyUrl ? (
+                    <a href={job.companyUrl} target="_blank" rel="noopener noreferrer" class="company">
+                      {job.company} <Icon name="arrow-up-right" size={14} />
+                    </a>
+                  ) : (
+                    <span class="company">{job.company}</span>
+                  )}
+                </span>
+              </h3>
+              <p class="summary">{job.summary}</p>
+              <ul class="focus">
+                {job.focus.map((f) => (
+                  <li>{f}</li>
+                ))}
+              </ul>
+              {job.programs && job.programs.length > 0 && (
+                <div class="programs">
+                  <p class="mono programs-label">Represented {job.company.split(' by ')[0]} at</p>
+                  <ul>
+                    {job.programs.map((p) => (
+                      <li>
+                        <span class="pn">{p.name}</span>
+                        <span class="mono pe">{p.ecosystem}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              <ul class="stack" aria-label="Technologies">
+                {job.stack.map((s) => (
+                  <li class="mono">{s}</li>
+                ))}
+              </ul>
+            </div>
+          </li>
+        ))
+      }
+
+      <li class="job edu" data-reveal>
+        <div class="meta">
+          <p class="mono period">Education</p>
+        </div>
+        <div class="body">
+          <h3>
+            <span class="role">BS Computer Science</span>
+            <span class="at"><span class="company">FAST-NUCES</span></span>
+          </h3>
+        </div>
+      </li>
+    </ol>
+  </div>
+</section>
+
+<style>
+  .timeline {
+    border-top: 1px solid var(--line);
+  }
+  .job {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 24px 48px;
+    padding-block: 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .edu {
+    padding-block: 28px;
+  }
+  .period {
+    font-size: 12.5px;
+    color: var(--fg-muted);
+    display: inline-block;
+  }
+  .chains {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 16px;
+  }
+  h3 {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 12px;
+    font-weight: inherit;
+  }
+  .role {
+    font-size: clamp(20px, 2.4vw, 24px);
+    font-weight: 560;
+    letter-spacing: -0.03em;
+  }
+  .at {
+    color: var(--fg-subtle);
+    font-size: 16px;
+  }
+  .at::before {
+    content: '@ ';
+    font-family: var(--font-mono);
+    font-size: 14px;
+  }
+  .company {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--fg-muted);
+  }
+  a.company:hover {
+    color: var(--fg);
+  }
+  .summary {
+    margin-top: 16px;
+    max-width: 68ch;
+    color: var(--fg-muted);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+  .focus {
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px 32px;
+  }
+  .focus li {
+    position: relative;
+    padding-left: 20px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--fg);
+  }
+  .focus li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.72em;
+    width: 8px;
+    height: 1px;
+    background: var(--accent);
+  }
+  .programs {
+    margin-top: 32px;
+  }
+  .programs-label {
+    font-size: 12px;
+    color: var(--fg-subtle);
+    margin-bottom: 14px;
+  }
+  .programs ul {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    border-top: 1px solid var(--line);
+  }
+  .programs li {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    padding: 16px 16px 16px 0;
+    border-bottom: 1px solid var(--line);
+    transition: color 0.25s var(--ease);
+  }
+  .programs li + li {
+    padding-left: 16px;
+    border-left: 1px solid var(--line);
+  }
+  .pn {
+    font-size: 15px;
+    font-weight: 520;
+    letter-spacing: -0.015em;
+    line-height: 1.35;
+  }
+  .pe {
+    font-size: 11.5px;
+    color: var(--accent);
+  }
+  .stack {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px 18px;
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px dashed var(--line);
+  }
+  .stack li {
+    font-size: 12.5px;
+    color: var(--fg-subtle);
+  }
+
+  @media (max-width: 960px) {
+    .programs ul {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .programs li:nth-child(odd) {
+      padding-left: 0;
+      border-left: 0;
+    }
+  }
+  @media (max-width: 820px) {
+    .job {
+      grid-template-columns: 1fr;
+    }
+    .focus {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

@@ -1,0 +1,38 @@
+---
+import { site, links, clean } from '@/data/site';
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container inner">
+    <p>© {year} {site.name}</p>
+    <p class="mono meta">
+      <a class="link-underline" href={clean(links.github)} rel="me noopener" target="_blank">GitHub</a>
+      <span aria-hidden="true">·</span>
+      <a class="link-underline" href="#main">Back to top ↑</a>
+    </p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    border-top: 1px solid var(--line);
+    padding-block: 28px;
+    font-size: 13px;
+    color: var(--fg-subtle);
+  }
+  .inner {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .meta {
+    display: flex;
+    gap: 10px;
+    font-size: 12px;
+  }
+  .meta a:hover {
+    color: var(--fg);
+  }
+</style>
