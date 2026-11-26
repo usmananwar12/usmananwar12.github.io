@@ -55,5 +55,13 @@ export const projects: Project[] = [
     tags: ['Security', 'AI Agents', 'Solidity'],
     href: 'https://github.com/usmananwar11/ChainSec',
   },
+  {
+    name: 'DeKYC',
+    tagline: 'Decentralized identity verification',
+    description:
+      'A "verify once, share many" KYC framework. A sequentially gated AI pipeline (liveness detection, document forensics, OCR validation and face matching) feeds a registry contract on Arbitrum that anchors salted EIP-712 identity commitments, while all personal data stays off-chain.',
+    context: 'Personal project',
+    tags: ['Identity', 'Arbitrum', 'EIP-712', 'AI Forensics'],
+  },
   // Add other public projects here.
 ];
