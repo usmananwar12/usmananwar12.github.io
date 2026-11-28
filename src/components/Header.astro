@@ -2,19 +2,22 @@
 import Logo from './Logo.astro';
 
 const nav = [
-  { href: '/#about', label: 'About' },
-  { href: '/#experience', label: 'Experience' },
-  { href: '/#work', label: 'Work' },
-  { href: '/#stack', label: 'Stack' },
-  { href: '/#research', label: 'Research' },
+  { href: '/#about', id: 'about', label: 'About' },
+  { href: '/#experience', id: 'experience', label: 'Experience' },
+  { href: '/#work', id: 'work', label: 'Work' },
+  { href: '/#stack', id: 'stack', label: 'Stack' },
+  { href: '/#research', id: 'research', label: 'Research' },
 ];
 ---
 
 <header class="header" data-header>
   <div class="container bar">
     <a href="/" class="brand" aria-label="Usman Anwar, home">
-      <Logo size={26} />
-      <span class="brand-name">Usman Anwar</span>
+      <Logo size={28} />
+      <span class="brand-text">
+        <span class="brand-name">Usman Anwar</span>
+        <span class="brand-tag mono">web3.eng</span>
+      </span>
     </a>
 
     <nav class="nav" aria-label="Primary">
@@ -22,7 +25,9 @@ const nav = [
         {
           nav.map((item) => (
             <li>
-              <a href={item.href}>{item.label}</a>
+              <a href={item.href} data-nav-link={item.id} data-scramble>
+                {item.label}
+              </a>
             </li>
           ))
         }
@@ -30,6 +35,10 @@ const nav = [
     </nav>
 
     <div class="actions">
+      <div class="net-pill mono" aria-hidden="true" title="Multi-chain builder">
+        <span class="live"></span>
+        <span>5 CHAINS</span>
+      </div>
       <button class="theme-btn" type="button" aria-label="Switch to light theme" data-theme-toggle>
         <svg class="sun" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
           <circle cx="12" cy="12" r="4"></circle>
@@ -41,7 +50,7 @@ const nav = [
           <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5Z"></path>
         </svg>
       </button>
-      <a href="/#contact" class="btn btn-ghost cta">Contact</a>
+      <a href="/#contact" class="btn btn-primary cta" data-magnetic>Contact</a>
       <button
         class="menu-btn"
         type="button"
@@ -55,12 +64,19 @@ const nav = [
     </div>
   </div>
 
+  <div class="scroll-track" aria-hidden="true">
+    <div class="scroll-bar" data-scroll-progress></div>
+  </div>
+
   <nav id="mobile-nav" class="mobile-nav" aria-label="Mobile" data-menu hidden>
     <ul class="container">
       {
-        [...nav, { href: '/#contact', label: 'Contact' }].map((item) => (
+        [...nav, { href: '/#contact', id: 'contact', label: 'Contact' }].map((item, i) => (
           <li>
-            <a href={item.href}>{item.label}</a>
+            <a href={item.href}>
+              <span class="mono m-idx">0{i + 1}</span>
+              <span>{item.label}</span>
+            </a>
           </li>
         ))
       }
@@ -72,94 +88,149 @@ const nav = [
   .header {
     position: sticky;
     top: 0;
-    z-index: 50;
+    z-index: 60;
     border-bottom: 1px solid transparent;
     transition:
-      background 0.3s var(--ease),
-      border-color 0.3s var(--ease),
-      backdrop-filter 0.3s var(--ease);
+      background 0.35s var(--ease),
+      border-color 0.35s var(--ease),
+      backdrop-filter 0.35s var(--ease),
+      box-shadow 0.35s var(--ease);
   }
   .header.is-scrolled,
   .header.is-open {
     background: var(--header-bg);
-    backdrop-filter: saturate(160%) blur(14px);
-    -webkit-backdrop-filter: saturate(160%) blur(14px);
+    backdrop-filter: saturate(180%) blur(18px);
+    -webkit-backdrop-filter: saturate(180%) blur(18px);
     border-bottom-color: var(--line);
+    box-shadow: 0 12px 40px -20px rgb(0 0 0 / 0.65);
   }
+
   .bar {
-    height: 64px;
+    height: 68px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 24px;
+    gap: 20px;
   }
+
   .brand {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    font-weight: 560;
-    letter-spacing: -0.02em;
+    gap: 11px;
+  }
+  .brand-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  .brand-name {
+    font-weight: 600;
+    letter-spacing: -0.025em;
     font-size: 15px;
   }
+  .brand-tag {
+    font-size: 10.5px;
+    color: var(--accent-text);
+    letter-spacing: 0.04em;
+    margin-top: 2px;
+  }
+
   .nav ul {
     display: flex;
+    align-items: center;
     gap: 4px;
+    padding: 4px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgb(var(--tint) / 0.025);
+    backdrop-filter: blur(12px);
   }
   .nav a {
     display: inline-block;
-    padding: 6px 12px;
+    padding: 6px 14px;
     border-radius: 999px;
-    font-size: 14px;
+    font-size: 13.5px;
+    font-weight: 500;
     color: var(--fg-muted);
     transition:
-      color 0.2s var(--ease),
-      background 0.2s var(--ease);
+      color 0.25s var(--ease),
+      background 0.25s var(--ease),
+      box-shadow 0.25s var(--ease);
   }
-  .nav a:hover {
+  .nav a:hover,
+  .nav a.is-active {
     color: var(--fg);
-    background: rgb(var(--tint) / 0.05);
+    background: rgb(var(--accent-rgb) / 0.12);
+    box-shadow: 0 0 0 1px rgb(var(--accent-rgb) / 0.28) inset;
   }
+  .nav a.is-active {
+    color: var(--accent-text);
+  }
+
   .actions {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 10px;
   }
+
+  .net-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 11px;
+    border-radius: 999px;
+    border: 1px solid rgb(var(--accent-rgb) / 0.24);
+    background: rgb(var(--accent-rgb) / 0.06);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--accent-text);
+  }
+  .net-pill .live {
+    width: 6px;
+    height: 6px;
+  }
+
   .cta {
-    --h: 34px;
-    padding: 0 14px;
+    --h: 35px;
+    padding: 0 16px;
     font-size: 13.5px;
   }
+
   .theme-btn {
     position: relative;
     display: grid;
     place-items: center;
-    width: 34px;
-    height: 34px;
+    width: 35px;
+    height: 35px;
     border-radius: 999px;
     border: 1px solid var(--line-strong);
-    background: transparent;
+    background: rgb(var(--tint) / 0.03);
     color: var(--fg-muted);
     cursor: pointer;
     transition:
-      color 0.2s var(--ease),
-      background 0.2s var(--ease);
+      color 0.25s var(--ease),
+      border-color 0.25s var(--ease),
+      background 0.25s var(--ease),
+      transform 0.25s var(--spring);
   }
   .theme-btn:hover {
     color: var(--fg);
-    background: rgb(var(--tint) / 0.05);
+    border-color: rgb(var(--accent-rgb) / 0.4);
+    background: rgb(var(--accent-rgb) / 0.08);
+    transform: rotate(10deg);
   }
   .theme-btn svg {
     position: absolute;
     fill: none;
     stroke: currentColor;
-    stroke-width: 1.6;
+    stroke-width: 1.65;
     stroke-linecap: round;
     stroke-linejoin: round;
     transition:
       transform 0.45s var(--ease),
       opacity 0.3s var(--ease);
   }
-  /* dark theme shows the sun (switch to light); light theme shows the moon */
   .theme-btn .moon {
     opacity: 0;
     transform: rotate(-60deg) scale(0.6);
@@ -172,20 +243,39 @@ const nav = [
     opacity: 1;
     transform: none;
   }
+
+  .scroll-track {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: transparent;
+    overflow: hidden;
+  }
+  .scroll-bar {
+    height: 100%;
+    width: 100%;
+    transform-origin: 0 50%;
+    transform: scaleX(0);
+    background: linear-gradient(90deg, var(--accent), var(--cyan), var(--violet));
+    box-shadow: 0 0 12px rgb(var(--accent-rgb) / 0.8);
+  }
+
   .menu-btn {
     display: none;
     width: 38px;
     height: 38px;
     border-radius: 999px;
     border: 1px solid var(--line-strong);
-    background: transparent;
+    background: rgb(var(--tint) / 0.03);
     cursor: pointer;
     position: relative;
   }
   .menu-btn span {
     position: absolute;
-    left: 12px;
-    right: 12px;
+    left: 11px;
+    right: 11px;
     height: 1.5px;
     background: var(--fg);
     border-radius: 2px;
@@ -203,17 +293,30 @@ const nav = [
   .menu-btn[aria-expanded='true'] span:last-child {
     transform: translateY(-3px) rotate(-45deg);
   }
+
   .mobile-nav ul {
-    padding-block: 8px 20px;
+    padding-block: 10px 24px;
   }
   .mobile-nav a {
-    display: block;
-    padding: 14px 0;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 0;
     font-size: 20px;
+    font-weight: 540;
     letter-spacing: -0.02em;
     border-bottom: 1px solid var(--line);
   }
+  .m-idx {
+    font-size: 12px;
+    color: var(--accent-text);
+  }
 
+  @media (max-width: 1020px) {
+    .net-pill {
+      display: none;
+    }
+  }
   @media (max-width: 820px) {
     .nav,
     .cta {
@@ -242,7 +345,7 @@ const nav = [
   themeBtn.addEventListener('click', () => {
     const next = root.dataset.theme === 'light' ? 'dark' : 'light';
     root.dataset.theme = next;
-    themeMeta?.setAttribute('content', next === 'light' ? '#f7f7f5' : '#08090a');
+    themeMeta?.setAttribute('content', next === 'light' ? '#f3f6fc' : '#04060d');
     try {
       localStorage.setItem('theme', next);
     } catch {}
@@ -252,10 +355,38 @@ const nav = [
   const header = document.querySelector<HTMLElement>('[data-header]')!;
   const btn = document.querySelector<HTMLButtonElement>('[data-menu-btn]')!;
   const menu = document.querySelector<HTMLElement>('[data-menu]')!;
+  const progressBar = document.querySelector<HTMLElement>('[data-scroll-progress]');
 
-  const onScroll = () => header.classList.toggle('is-scrolled', window.scrollY > 8);
+  const onScroll = () => {
+    header.classList.toggle('is-scrolled', window.scrollY > 8);
+    if (progressBar) {
+      const max = Math.max(document.documentElement.scrollHeight - window.innerHeight, 1);
+      const ratio = Math.min(Math.max(window.scrollY / max, 0), 1);
+      progressBar.style.transform = `scaleX(${ratio})`;
+    }
+  };
   onScroll();
   window.addEventListener('scroll', onScroll, { passive: true });
+
+  // Active nav highlight based on visible section
+  const navLinks = Array.from(document.querySelectorAll<HTMLAnchorElement>('[data-nav-link]'));
+  const sections = navLinks
+    .map((a) => document.getElementById(a.dataset.navLink || ''))
+    .filter((s): s is HTMLElement => !!s);
+
+  if (sections.length && 'IntersectionObserver' in window) {
+    const sio = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            navLinks.forEach((a) => a.classList.toggle('is-active', a.dataset.navLink === entry.target.id));
+          }
+        }
+      },
+      { rootMargin: '-38% 0px -52% 0px', threshold: 0 },
+    );
+    sections.forEach((s) => sio.observe(s));
+  }
 
   const setOpen = (open: boolean) => {
     btn.setAttribute('aria-expanded', String(open));

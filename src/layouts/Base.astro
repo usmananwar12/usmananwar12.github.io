@@ -1,5 +1,6 @@
 ---
 import '@/styles/global.css';
+import Web3Canvas from '@/components/Web3Canvas.astro';
 import Header from '@/components/Header.astro';
 import Footer from '@/components/Footer.astro';
 import { site, links, clean, isPlaceholder } from '@/data/site';
@@ -16,7 +17,9 @@ const pageTitle = title ? `${title} · ${site.name}` : site.title;
 const canonical = new URL(Astro.url.pathname, Astro.site).href;
 const ogImage = new URL(site.ogImage, Astro.site).href;
 
-const sameAs = [links.github, links.githubAlt, links.linkedin, links.x, links.telegram].filter((l) => !isPlaceholder(l)).map(clean);
+const sameAs = [links.github, links.githubAlt, links.linkedin, links.x, links.telegram]
+  .filter((l) => !isPlaceholder(l))
+  .map(clean);
 const personLd = {
   '@context': 'https://schema.org',
   '@type': 'Person',
@@ -39,7 +42,7 @@ const personLd = {
     <meta name="description" content={description} />
     <meta name="keywords" content={site.keywords.join(', ')} />
     <meta name="author" content={site.name} />
-    <meta name="theme-color" content="#08090a" data-theme-color />
+    <meta name="theme-color" content="#04060d" data-theme-color />
     <link rel="canonical" href={canonical} />
     <link rel="sitemap" href="/sitemap-index.xml" />
 
@@ -77,13 +80,14 @@ const personLd = {
         } catch (e) {}
         root.dataset.theme = theme;
         var meta = document.querySelector('[data-theme-color]');
-        if (meta) meta.setAttribute('content', theme === 'light' ? '#f7f7f5' : '#08090a');
+        if (meta) meta.setAttribute('content', theme === 'light' ? '#f3f6fc' : '#04060d');
       })();
     </script>
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
-    <div class="ambient" aria-hidden="true"></div>
+    <Web3Canvas />
+    <div class="cursor-aura" data-cursor-aura aria-hidden="true"></div>
     <Header />
     <main id="main">
       <slot />
@@ -91,8 +95,12 @@ const personLd = {
     <Footer />
 
     <script>
-      // Reveal on scroll
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const finePointer = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+
+      // 1. Reveal on scroll + reveal above-the-fold immediately
       const els = document.querySelectorAll<HTMLElement>('[data-reveal]');
+      const vh = window.innerHeight;
       if ('IntersectionObserver' in window) {
         const io = new IntersectionObserver(
           (entries) => {
@@ -103,14 +111,56 @@ const personLd = {
               }
             }
           },
-          { rootMargin: '0px 0px -8% 0px', threshold: 0.05 },
+          { rootMargin: '0px 0px -4% 0px', threshold: 0.02 },
         );
-        els.forEach((el) => io.observe(el));
+        els.forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < vh * 0.96) {
+            el.classList.add('is-in');
+          } else {
+            io.observe(el);
+          }
+        });
       } else {
         els.forEach((el) => el.classList.add('is-in'));
       }
 
-      // Cursor spotlight
+      // 2. Cryptographic hex-scramble effect on hover / reveal
+      const HEX_CHARS = '0123456789abcdefx#';
+      const scramble = (el: HTMLElement) => {
+        if (reducedMotion) return;
+        const original = el.dataset.scrambleText ?? el.textContent ?? '';
+        el.dataset.scrambleText = original;
+        let frame = 0;
+        const totalFrames = Math.min(Math.max(original.length * 1.4, 12), 26);
+        const timer = window.setInterval(() => {
+          frame++;
+          const progress = frame / totalFrames;
+          const revealed = Math.floor(original.length * progress);
+          let out = '';
+          for (let i = 0; i < original.length; i++) {
+            const ch = original[i];
+            if (ch === ' ' || ch === '/' || ch === '·') {
+              out += ch;
+            } else if (i < revealed) {
+              out += ch;
+            } else {
+              out += HEX_CHARS[Math.floor(Math.random() * HEX_CHARS.length)];
+            }
+          }
+          el.textContent = out;
+          if (frame >= totalFrames) {
+            el.textContent = original;
+            clearInterval(timer);
+          }
+        }, 28);
+      };
+
+      document.querySelectorAll<HTMLElement>('[data-scramble]').forEach((el) => {
+        el.addEventListener('pointerenter', () => scramble(el));
+      });
+
+      // 3. Cursor spotlight + subtle 3D perspective tilt on cards
       document.querySelectorAll<HTMLElement>('.spotlight').forEach((el) => {
         el.addEventListener('pointermove', (e) => {
           const r = el.getBoundingClientRect();
@@ -118,6 +168,103 @@ const personLd = {
           el.style.setProperty('--my', `${e.clientY - r.top}px`);
         });
       });
+
+      if (!reducedMotion && finePointer) {
+        document.querySelectorAll<HTMLElement>('[data-tilt]').forEach((el) => {
+          const maxTilt = Number(el.dataset.tilt || '5');
+          el.addEventListener('pointermove', (e) => {
+            const r = el.getBoundingClientRect();
+            const px = (e.clientX - r.left) / r.width - 0.5;
+            const py = (e.clientY - r.top) / r.height - 0.5;
+            el.style.transform = `perspective(900px) rotateX(${(-py * maxTilt).toFixed(2)}deg) rotateY(${(px * maxTilt).toFixed(2)}deg) translateY(-2px)`;
+          });
+          el.addEventListener('pointerleave', () => {
+            el.style.transform = '';
+          });
+        });
+
+        // Subtle magnetic pull on primary buttons
+        document.querySelectorAll<HTMLElement>('[data-magnetic]').forEach((el) => {
+          el.addEventListener('pointermove', (e) => {
+            const r = el.getBoundingClientRect();
+            const dx = (e.clientX - (r.left + r.width / 2)) * 0.16;
+            const dy = (e.clientY - (r.top + r.height / 2)) * 0.16;
+            el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0)`;
+          });
+          el.addEventListener('pointerleave', () => {
+            el.style.transform = '';
+          });
+        });
+
+        // Global subtle cursor aura
+        const aura = document.querySelector<HTMLElement>('[data-cursor-aura]');
+        if (aura) {
+          let tx = -999;
+          let ty = -999;
+          let cx = -999;
+          let cy = -999;
+          let active = false;
+
+          const tick = () => {
+            cx += (tx - cx) * 0.12;
+            cy += (ty - cy) * 0.12;
+            aura.style.transform = `translate3d(${cx - 170}px, ${cy - 170}px, 0)`;
+            if (active) requestAnimationFrame(tick);
+          };
+
+          window.addEventListener(
+            'pointermove',
+            (e) => {
+              tx = e.clientX;
+              ty = e.clientY;
+              if (!active) {
+                cx = tx;
+                cy = ty;
+                active = true;
+                aura.classList.add('is-visible');
+                requestAnimationFrame(tick);
+              }
+            },
+            { passive: true },
+          );
+          document.addEventListener('pointerleave', () => {
+            active = false;
+            aura.classList.remove('is-visible');
+          });
+        }
+      }
+
+      // 4. Animated numeric count-up for audit metrics
+      const counters = document.querySelectorAll<HTMLElement>('[data-count]');
+      if (counters.length && 'IntersectionObserver' in window) {
+        const cio = new IntersectionObserver(
+          (entries) => {
+            for (const entry of entries) {
+              if (!entry.isIntersecting) continue;
+              const el = entry.target as HTMLElement;
+              const target = Number(el.dataset.count || '0');
+              if (reducedMotion || target <= 0) {
+                el.textContent = String(target);
+                cio.unobserve(el);
+                continue;
+              }
+              const duration = 900;
+              const start = performance.now();
+              const step = (now: number) => {
+                const p = Math.min((now - start) / duration, 1);
+                const eased = 1 - Math.pow(1 - p, 3);
+                el.textContent = String(Math.round(eased * target));
+                if (p < 1) requestAnimationFrame(step);
+                else el.textContent = String(target);
+              };
+              requestAnimationFrame(step);
+              cio.unobserve(el);
+            }
+          },
+          { threshold: 0.4 },
+        );
+        counters.forEach((c) => cio.observe(c));
+      }
     </script>
   </body>
 </html>

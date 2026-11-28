@@ -5,9 +5,36 @@ interface Props {
 const { size = 28 } = Astro.props;
 ---
 
-<svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true">
-  <rect x="0.5" y="0.5" width="31" height="31" rx="8.5" fill="#0e0f11" stroke="rgba(255,255,255,0.14)"></rect>
-  <path d="M10 9.5v7.5a6 6 0 0 0 12 0V9.5" fill="none" stroke="#f4f5f6" stroke-width="2.4" stroke-linecap="round"
-  ></path>
-  <circle cx="22" cy="9.5" r="2.3" fill="#7cf5c8"></circle>
+<svg width={size} height={size} viewBox="0 0 32 32" aria-hidden="true" class="logo-svg">
+  <defs>
+    <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#2dffc4" />
+      <stop offset="55%" stop-color="#38d9ff" />
+      <stop offset="100%" stop-color="#8b5cf6" />
+    </linearGradient>
+    <linearGradient id="logo-bg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#0d152a" />
+      <stop offset="100%" stop-color="#060913" />
+    </linearGradient>
+  </defs>
+  <rect x="0.75" y="0.75" width="30.5" height="30.5" rx="9" fill="url(#logo-bg)" stroke="url(#logo-grad)" stroke-opacity="0.55" stroke-width="1.2" />
+  <path
+    d="M10 9.5v7.5a6 6 0 0 0 12 0V9.5"
+    fill="none"
+    stroke="#f3f6fc"
+    stroke-width="2.4"
+    stroke-linecap="round"
+  />
+  <circle cx="22" cy="9.5" r="2.6" fill="#2dffc4" />
 </svg>
+
+<style>
+  .logo-svg {
+    filter: drop-shadow(0 0 10px rgb(var(--accent-rgb) / 0.35));
+    transition: transform 0.35s var(--spring), filter 0.35s var(--ease);
+  }
+  :global(.brand:hover) .logo-svg {
+    transform: rotate(-6deg) scale(1.06);
+    filter: drop-shadow(0 0 14px rgb(var(--accent-rgb) / 0.65));
+  }
+</style>

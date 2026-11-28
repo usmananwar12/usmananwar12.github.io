@@ -8,6 +8,8 @@ const { index, label, id } = Astro.props;
 ---
 
 <div class="section-head" data-reveal>
-  <p class="section-index"><span>{index}</span><span aria-hidden="true">/</span><span>{label}</span></p>
+  <p class="section-index" data-scramble>
+    <span>0x{index}</span><span aria-hidden="true">//</span><span>{label}</span>
+  </p>
   <h2 class="section-title" id={id}><slot /></h2>
 </div>

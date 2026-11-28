@@ -1,0 +1,547 @@
+---
+/**
+ * Full-viewport interactive Web3 consensus mesh canvas.
+ * Renders a living decentralized network of nodes, consensus edges,
+ * glowing transaction packets, floating 3D-projected cryptographic polyhedra,
+ * mouse-reactive energy fields, and click-triggered block confirmation ripples.
+ */
+---
+
+<div class="web3-bg" aria-hidden="true">
+  <div class="aurora aurora-1"></div>
+  <div class="aurora aurora-2"></div>
+  <div class="aurora aurora-3"></div>
+  <div class="cyber-grid"></div>
+  <canvas id="web3-mesh" data-web3-canvas></canvas>
+  <div class="vignette"></div>
+</div>
+
+<style>
+  .web3-bg {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    background: var(--bg);
+    transition: background-color 0.45s var(--ease);
+  }
+
+  #web3-mesh {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  /* Drifting Web3 aurora nebulas */
+  .aurora {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(110px);
+    opacity: var(--aurora-opacity, 0.5);
+    will-change: transform;
+  }
+  .aurora-1 {
+    width: clamp(460px, 55vw, 860px);
+    height: clamp(460px, 55vw, 860px);
+    top: -18%;
+    left: -10%;
+    background: radial-gradient(circle, rgb(var(--accent-rgb) / 0.34) 0%, transparent 68%);
+    animation: drift-a 22s ease-in-out infinite alternate;
+  }
+  .aurora-2 {
+    width: clamp(480px, 58vw, 900px);
+    height: clamp(480px, 58vw, 900px);
+    top: 12%;
+    right: -14%;
+    background: radial-gradient(circle, rgb(var(--violet-rgb) / 0.32) 0%, transparent 68%);
+    animation: drift-b 26s ease-in-out infinite alternate;
+  }
+  .aurora-3 {
+    width: clamp(420px, 50vw, 780px);
+    height: clamp(420px, 50vw, 780px);
+    bottom: -20%;
+    left: 26%;
+    background: radial-gradient(circle, rgb(var(--cyan-rgb) / 0.24) 0%, transparent 68%);
+    animation: drift-c 28s ease-in-out infinite alternate;
+  }
+
+  /* Subtle perspective architectural cyber grid */
+  .cyber-grid {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 18%, #000 18%, transparent 78%);
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 18%, #000 18%, transparent 78%);
+  }
+
+  .vignette {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 100% 100% at 50% 40%, transparent 50%, var(--vignette) 100%);
+  }
+
+  @keyframes drift-a {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(8vw, 6vh, 0) scale(1.12);
+    }
+  }
+  @keyframes drift-b {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(-9vw, 9vh, 0) scale(1.08);
+    }
+  }
+  @keyframes drift-c {
+    0% {
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    100% {
+      transform: translate3d(6vw, -8vh, 0) scale(1.15);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .aurora {
+      animation: none;
+    }
+  }
+</style>
+
+<script>
+  const canvas = document.querySelector<HTMLCanvasElement>('[data-web3-canvas]');
+  if (canvas) {
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      let width = 0;
+      let height = 0;
+      let dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      interface Node {
+        x: number;
+        y: number;
+        vx: number;
+        vy: number;
+        r: number;
+        hue: 'mint' | 'cyan' | 'violet';
+        phase: number;
+        isHex: boolean;
+      }
+
+      interface Packet {
+        from: Node;
+        to: Node;
+        t: number;
+        speed: number;
+        hue: 'mint' | 'cyan' | 'violet';
+      }
+
+      interface Ripple {
+        x: number;
+        y: number;
+        r: number;
+        maxR: number;
+        alpha: number;
+      }
+
+      interface FloatCrystal {
+        x: number;
+        y: number;
+        size: number;
+        rx: number;
+        ry: number;
+        rz: number;
+        vrx: number;
+        vry: number;
+        vy: number;
+        hue: 'mint' | 'cyan' | 'violet';
+      }
+
+      // Octahedron (Ethereum-inspired diamond crystal) vertices & edges
+      const octVerts: [number, number, number][] = [
+        [0, -1.35, 0],
+        [0.95, 0, 0],
+        [0, 0, 0.95],
+        [-0.95, 0, 0],
+        [0, 0, -0.95],
+        [0, 1.35, 0],
+      ];
+      const octEdges: [number, number][] = [
+        [0, 1], [0, 2], [0, 3], [0, 4],
+        [5, 1], [5, 2], [5, 3], [5, 4],
+        [1, 2], [2, 3], [3, 4], [4, 1],
+      ];
+
+      let nodes: Node[] = [];
+      let packets: Packet[] = [];
+      let ripples: Ripple[] = [];
+      let crystals: FloatCrystal[] = [];
+
+      const pointer = { x: -9999, y: -9999, active: false };
+      let scrollY = window.scrollY;
+      let rafId = 0;
+
+      const palette = () => {
+        const isLight = document.documentElement.dataset.theme === 'light';
+        return isLight
+          ? {
+              mint: '5, 150, 105',
+              cyan: '2, 132, 199',
+              violet: '99, 102, 241',
+              edgeAlpha: 0.14,
+              nodeAlpha: 0.55,
+              crystalAlpha: 0.14,
+            }
+          : {
+              mint: '45, 255, 196',
+              cyan: '56, 217, 255',
+              violet: '139, 92, 246',
+              edgeAlpha: 0.22,
+              nodeAlpha: 0.82,
+              crystalAlpha: 0.22,
+            };
+      };
+
+      const hues: ('mint' | 'cyan' | 'violet')[] = ['mint', 'cyan', 'violet'];
+
+      const init = () => {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(width * dpr);
+        canvas.height = Math.floor(height * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        const count = Math.min(Math.max(Math.floor((width * height) / 21000), 34), 78);
+        nodes = Array.from({ length: count }, (_, i) => ({
+          x: Math.random() * width,
+          y: Math.random() * height,
+          vx: (Math.random() - 0.5) * 0.36,
+          vy: (Math.random() - 0.5) * 0.36,
+          r: Math.random() * 1.7 + 1.1,
+          hue: hues[i % hues.length],
+          phase: Math.random() * Math.PI * 2,
+          isHex: i % 5 === 0,
+        }));
+
+        const crystalCount = width < 700 ? 2 : 4;
+        crystals = Array.from({ length: crystalCount }, (_, i) => ({
+          x: (width / (crystalCount + 1)) * (i + 1) + (Math.random() - 0.5) * 140,
+          y: height * (0.18 + ((i * 0.27) % 0.72)),
+          size: 26 + (i % 3) * 14,
+          rx: Math.random() * Math.PI,
+          ry: Math.random() * Math.PI,
+          rz: (Math.random() - 0.5) * 0.3,
+          vrx: 0.002 + Math.random() * 0.0025,
+          vry: 0.004 + Math.random() * 0.004,
+          vy: (Math.random() - 0.5) * 0.12,
+          hue: hues[i % hues.length],
+        }));
+
+        packets = [];
+      };
+
+      const drawHex = (x: number, y: number, r: number) => {
+        ctx.beginPath();
+        for (let i = 0; i < 6; i++) {
+          const a = (Math.PI / 3) * i - Math.PI / 6;
+          const px = x + r * Math.cos(a);
+          const py = y + r * Math.sin(a);
+          if (i === 0) ctx.moveTo(px, py);
+          else ctx.lineTo(px, py);
+        }
+        ctx.closePath();
+      };
+
+      const drawCrystal = (c: FloatCrystal, colors: ReturnType<typeof palette>, scrollShift: number) => {
+        const cy = ((c.y - scrollShift * 0.14) % (height + 160) + (height + 160)) % (height + 160) - 80;
+        const cosX = Math.cos(c.rx);
+        const sinX = Math.sin(c.rx);
+        const cosY = Math.cos(c.ry);
+        const sinY = Math.sin(c.ry);
+
+        const projected = octVerts.map(([vx, vy, vz]) => {
+          // Rotate Y
+          const x1 = vx * cosY - vz * sinY;
+          const z1 = vx * sinY + vz * cosY;
+          // Rotate X
+          const y2 = vy * cosX - z1 * sinX;
+          const z2 = vy * sinX + z1 * cosX;
+          const scale = 3.2 / (3.2 + z2 * 0.45);
+          return [c.x + x1 * c.size * scale, cy + y2 * c.size * scale] as const;
+        });
+
+        ctx.strokeStyle = `rgba(${colors[c.hue]}, ${colors.crystalAlpha})`;
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        for (const [a, b] of octEdges) {
+          ctx.moveTo(projected[a][0], projected[a][1]);
+          ctx.lineTo(projected[b][0], projected[b][1]);
+        }
+        ctx.stroke();
+
+        // Glowing vertices
+        ctx.fillStyle = `rgba(${colors[c.hue]}, ${colors.crystalAlpha * 2.4})`;
+        for (const [px, py] of projected) {
+          ctx.beginPath();
+          ctx.arc(px, py, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      };
+
+      const render = (time: number) => {
+        const colors = palette();
+        ctx.clearRect(0, 0, width, height);
+
+        const linkDist = width < 700 ? 125 : 168;
+        const mouseDist = 210;
+
+        // 1. Floating cryptographic crystals
+        for (const c of crystals) {
+          if (!reducedMotion) {
+            c.rx += c.vrx;
+            c.ry += c.vry;
+            c.y += c.vy;
+            if (c.y < -80) c.y = height + 80;
+            if (c.y > height + 80) c.y = -80;
+          }
+          drawCrystal(c, colors, scrollY);
+        }
+
+        // 2. Update nodes
+        for (const n of nodes) {
+          if (!reducedMotion) {
+            n.x += n.vx;
+            n.y += n.vy;
+
+            if (pointer.active) {
+              const dx = pointer.x - n.x;
+              const dy = pointer.y - n.y;
+              const dist = Math.hypot(dx, dy);
+              if (dist < mouseDist && dist > 28) {
+                const force = ((mouseDist - dist) / mouseDist) * 0.012;
+                n.vx += (dx / dist) * force;
+                n.vy += (dy / dist) * force;
+              }
+            }
+
+            // Gentle velocity damping
+            const speed = Math.hypot(n.vx, n.vy);
+            if (speed > 0.72) {
+              n.vx *= 0.96;
+              n.vy *= 0.96;
+            }
+
+            if (n.x < -20) n.x = width + 20;
+            if (n.x > width + 20) n.x = -20;
+            if (n.y < -20) n.y = height + 20;
+            if (n.y > height + 20) n.y = -20;
+          }
+        }
+
+        // 3. Draw consensus edges & spawn live tx packets
+        for (let i = 0; i < nodes.length; i++) {
+          const a = nodes[i];
+          for (let j = i + 1; j < nodes.length; j++) {
+            const b = nodes[j];
+            const dx = a.x - b.x;
+            const dy = a.y - b.y;
+            const distSq = dx * dx + dy * dy;
+            if (distSq < linkDist * linkDist) {
+              const dist = Math.sqrt(distSq);
+              let alpha = (1 - dist / linkDist) * colors.edgeAlpha;
+
+              // Boost edges near cursor
+              if (pointer.active) {
+                const mx = (a.x + b.x) * 0.5 - pointer.x;
+                const my = (a.y + b.y) * 0.5 - pointer.y;
+                const mDist = Math.hypot(mx, my);
+                if (mDist < mouseDist) {
+                  alpha += (1 - mDist / mouseDist) * 0.24;
+                }
+              }
+
+              ctx.strokeStyle = `rgba(${colors[a.hue]}, ${alpha})`;
+              ctx.lineWidth = alpha > 0.2 ? 1.15 : 0.75;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(b.x, b.y);
+              ctx.stroke();
+
+              // Occasionally emit a glowing transaction packet along connected edge
+              if (!reducedMotion && packets.length < 28 && Math.random() < 0.0014) {
+                packets.push({
+                  from: a,
+                  to: b,
+                  t: 0,
+                  speed: 0.012 + Math.random() * 0.016,
+                  hue: a.hue,
+                });
+              }
+            }
+          }
+
+          // Connect close nodes softly to pointer
+          if (pointer.active) {
+            const dx = a.x - pointer.x;
+            const dy = a.y - pointer.y;
+            const dist = Math.hypot(dx, dy);
+            if (dist < mouseDist * 0.78) {
+              const alpha = (1 - dist / (mouseDist * 0.78)) * 0.28;
+              ctx.strokeStyle = `rgba(${colors.mint}, ${alpha})`;
+              ctx.lineWidth = 0.9;
+              ctx.beginPath();
+              ctx.moveTo(a.x, a.y);
+              ctx.lineTo(pointer.x, pointer.y);
+              ctx.stroke();
+            }
+          }
+        }
+
+        // 4. Draw moving transaction packets
+        for (let i = packets.length - 1; i >= 0; i--) {
+          const p = packets[i];
+          p.t += p.speed;
+          if (p.t >= 1) {
+            packets.splice(i, 1);
+            continue;
+          }
+          const px = p.from.x + (p.to.x - p.from.x) * p.t;
+          const py = p.from.y + (p.to.y - p.from.y) * p.t;
+          const fade = Math.sin(p.t * Math.PI);
+
+          ctx.fillStyle = `rgba(${colors[p.hue]}, ${0.85 * fade})`;
+          ctx.beginPath();
+          ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+          ctx.fill();
+
+          ctx.fillStyle = `rgba(${colors[p.hue]}, ${0.22 * fade})`;
+          ctx.beginPath();
+          ctx.arc(px, py, 6, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 5. Draw nodes
+        for (const n of nodes) {
+          const pulse = 0.75 + 0.25 * Math.sin(time * 0.002 + n.phase);
+          const col = colors[n.hue];
+
+          if (n.isHex) {
+            drawHex(n.x, n.y, n.r * 2.5);
+            ctx.strokeStyle = `rgba(${col}, ${colors.nodeAlpha * 0.65 * pulse})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+
+          ctx.fillStyle = `rgba(${col}, ${colors.nodeAlpha * pulse})`;
+          ctx.beginPath();
+          ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        // 6. Click confirmation shockwaves
+        for (let i = ripples.length - 1; i >= 0; i--) {
+          const rp = ripples[i];
+          rp.r += 5.5;
+          rp.alpha *= 0.93;
+          if (rp.alpha < 0.015 || rp.r > rp.maxR) {
+            ripples.splice(i, 1);
+            continue;
+          }
+          ctx.strokeStyle = `rgba(${colors.mint}, ${rp.alpha})`;
+          ctx.lineWidth = 1.4;
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rp.r, 0, Math.PI * 2);
+          ctx.stroke();
+
+          ctx.strokeStyle = `rgba(${colors.violet}, ${rp.alpha * 0.55})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.arc(rp.x, rp.y, rp.r * 0.68, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+
+        if (!reducedMotion) {
+          rafId = requestAnimationFrame(render);
+        }
+      };
+
+      init();
+      render(0);
+
+      let resizeTimer = 0;
+      window.addEventListener('resize', () => {
+        clearTimeout(resizeTimer);
+        resizeTimer = window.setTimeout(() => {
+          init();
+          if (reducedMotion) render(0);
+        }, 120);
+      });
+
+      window.addEventListener(
+        'scroll',
+        () => {
+          scrollY = window.scrollY;
+        },
+        { passive: true },
+      );
+
+      if (!reducedMotion) {
+        window.addEventListener(
+          'pointermove',
+          (e) => {
+            pointer.x = e.clientX;
+            pointer.y = e.clientY;
+            pointer.active = true;
+          },
+          { passive: true },
+        );
+
+        window.addEventListener('pointerleave', () => {
+          pointer.active = false;
+        });
+
+        window.addEventListener('pointerdown', (e) => {
+          ripples.push({ x: e.clientX, y: e.clientY, r: 6, maxR: 220, alpha: 0.55 });
+          // Fire packets from nearby nodes on click
+          const nearby = nodes.filter((n) => Math.hypot(n.x - e.clientX, n.y - e.clientY) < 220);
+          for (let i = 0; i < Math.min(nearby.length - 1, 6); i++) {
+            packets.push({
+              from: nearby[i],
+              to: nearby[i + 1],
+              t: 0,
+              speed: 0.025 + Math.random() * 0.015,
+              hue: 'mint',
+            });
+          }
+        });
+      }
+
+      // Redraw immediately when theme switches (important for reducedMotion)
+      const themeObs = new MutationObserver(() => {
+        if (reducedMotion) render(0);
+      });
+      themeObs.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+      document.addEventListener('visibilitychange', () => {
+        if (reducedMotion) return;
+        if (document.hidden) {
+          cancelAnimationFrame(rafId);
+        } else {
+          rafId = requestAnimationFrame(render);
+        }
+      });
+    }
+  }
+</script>

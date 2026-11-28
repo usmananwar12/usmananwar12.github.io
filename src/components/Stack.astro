@@ -1,5 +1,6 @@
 ---
 import SectionHead from './SectionHead.astro';
+import ChainIcon from './ChainIcon.astro';
 import { stack, tierLabel, type Tier } from '@/data/stack';
 
 const tiers: { tier: Tier; desc: string }[] = [
@@ -8,9 +9,15 @@ const tiers: { tier: Tier; desc: string }[] = [
   { tier: 'growing', desc: 'actively deepening' },
 ];
 const order: Record<Tier, number> = { core: 0, working: 1, growing: 2 };
-// Only show legend entries for tiers that are actually used.
 const used = new Set(stack.flatMap((g) => g.items.map((i) => i.tier)));
 const legend = tiers.filter((t) => used.has(t.tier));
+
+const groupMeta: Record<string, { icon: 'evm' | 'network' | 'liquidity' | 'terminal'; accent: string }> = {
+  Blockchain: { icon: 'evm', accent: '#2dffc4' },
+  Frontend: { icon: 'network', accent: '#38d9ff' },
+  Backend: { icon: 'liquidity', accent: '#a78bfa' },
+  Tooling: { icon: 'terminal', accent: '#f97316' },
+};
 ---
 
 <section id="stack" class="section" aria-labelledby="stack-title">
@@ -19,60 +26,106 @@ const legend = tiers.filter((t) => used.has(t.tier));
       Tools I reach for, <span class="dim">honestly ranked.</span>
     </SectionHead>
 
-    <ul class="legend mono" data-reveal aria-label="Legend">
+    <div class="legend-bar" data-reveal role="group" aria-label="Filter by proficiency">
+      <button type="button" class="leg-btn mono active" data-tier-filter="all" aria-pressed="true">
+        <span>All</span>
+      </button>
       {
         legend.map((t) => (
-          <li>
+          <button type="button" class="leg-btn mono" data-tier-filter={t.tier} aria-pressed="false">
             <span class={`mark ${t.tier}`} aria-hidden="true" />
             <span class="t">{tierLabel[t.tier]}</span>
-            <span class="d">{t.desc}</span>
-          </li>
+            <span class="d">— {t.desc}</span>
+          </button>
         ))
       }
-    </ul>
+    </div>
 
-    <div class="groups">
+    <div class="groups" data-stack-groups>
       {
-        stack.map((g, gi) => (
-          <div class="group" data-reveal style={`--d:${gi}`}>
-            <div class="group-head">
-              <h3>{g.label}</h3>
-              <p class="mono">{g.note}</p>
+        stack.map((g, gi) => {
+          const meta = groupMeta[g.label] ?? { icon: 'evm' as const, accent: '#2dffc4' };
+          return (
+            <div
+              class="group glass-card spotlight"
+              data-reveal
+              data-tilt="4"
+              style={`--d:${gi}; --g-accent:${meta.accent}`}
+            >
+              <div class="group-head">
+                <div class="head-top">
+                  <span class="g-icon">
+                    <ChainIcon name={meta.icon} size={17} />
+                  </span>
+                  <span class="mono count">{String(g.items.length).padStart(2, '0')}</span>
+                </div>
+                <h3>{g.label}</h3>
+                <p class="mono">{g.note}</p>
+              </div>
+
+              <ul>
+                {[...g.items]
+                  .sort((a, b) => order[a.tier] - order[b.tier])
+                  .map((item) => (
+                    <li class="skill-chip" data-skill-tier={item.tier}>
+                      <span class={`mark ${item.tier}`} aria-hidden="true" />
+                      <span class="item">{item.name}</span>
+                      <span class="sr-only">({tierLabel[item.tier]})</span>
+                    </li>
+                  ))}
+              </ul>
             </div>
-            <ul>
-              {[...g.items]
-                .sort((a, b) => order[a.tier] - order[b.tier])
-                .map((item) => (
-                  <li>
-                    <span class={`mark ${item.tier}`} aria-hidden="true" />
-                    <span class="item">{item.name}</span>
-                    <span class="sr-only">({tierLabel[item.tier]})</span>
-                  </li>
-                ))}
-            </ul>
-          </div>
-        ))
+          );
+        })
       }
     </div>
   </div>
 </section>
 
 <style>
-  .legend {
+  .legend-bar {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px 28px;
-    font-size: 12px;
-    color: var(--fg-subtle);
+    gap: 10px;
     margin-bottom: 28px;
   }
-  .legend li {
+
+  .leg-btn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
-  }
-  .legend .t {
+    height: 36px;
+    padding: 0 14px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    background: rgb(var(--tint) / 0.03);
+    backdrop-filter: blur(10px);
+    font-size: 12px;
     color: var(--fg-muted);
+    cursor: pointer;
+    transition:
+      border-color 0.25s var(--ease),
+      background 0.25s var(--ease),
+      color 0.25s var(--ease),
+      transform 0.25s var(--spring);
+  }
+  .leg-btn:hover {
+    color: var(--fg);
+    border-color: rgb(var(--accent-rgb) / 0.35);
+    transform: translateY(-1px);
+  }
+  .leg-btn.active {
+    color: var(--fg);
+    border-color: rgb(var(--accent-rgb) / 0.5);
+    background: rgb(var(--accent-rgb) / 0.12);
+    box-shadow: 0 0 20px -8px rgb(var(--accent-rgb) / 0.55);
+  }
+  .leg-btn .t {
+    color: var(--fg);
+    font-weight: 500;
+  }
+  .leg-btn .d {
+    color: var(--fg-subtle);
   }
 
   .mark {
@@ -83,65 +136,140 @@ const legend = tiers.filter((t) => used.has(t.tier));
   }
   .mark.core {
     background: var(--accent);
-    box-shadow: 0 0 10px rgb(var(--accent-rgb) / 0.5);
+    box-shadow: 0 0 10px rgb(var(--accent-rgb) / 0.85);
   }
   .mark.working {
-    background: linear-gradient(90deg, var(--accent) 50%, transparent 50%);
-    border: 1px solid var(--accent);
+    background: linear-gradient(90deg, var(--cyan) 50%, transparent 50%);
+    border: 1.5px solid var(--cyan);
+    box-shadow: 0 0 8px rgb(var(--cyan-rgb) / 0.5);
   }
   .mark.growing {
-    border: 1px solid var(--fg-subtle);
+    border: 1.5px solid var(--violet-soft);
   }
 
   .groups {
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
-    border-top: 1px solid var(--line);
-    border-left: 1px solid var(--line);
+    gap: 16px;
   }
+
   .group {
-    padding: 28px 24px 32px;
-    border-right: 1px solid var(--line);
-    border-bottom: 1px solid var(--line);
-    transition: background 0.3s var(--ease);
+    padding: 24px 20px 26px;
+    border-radius: 18px;
+    overflow: hidden;
+  }
+  .group > * {
+    position: relative;
+    z-index: 1;
   }
   .group:hover {
-    background: rgb(var(--tint) / 0.015);
+    border-color: color-mix(in srgb, var(--g-accent) 45%, transparent);
   }
+
   .group-head {
-    margin-bottom: 22px;
+    margin-bottom: 20px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--line);
   }
+  .head-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .g-icon {
+    display: grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    border: 1px solid color-mix(in srgb, var(--g-accent) 35%, transparent);
+    background: color-mix(in srgb, var(--g-accent) 12%, transparent);
+    color: var(--g-accent);
+    transition: transform 0.3s var(--spring);
+  }
+  .group:hover .g-icon {
+    transform: scale(1.08) rotate(-5deg);
+  }
+  .count {
+    font-size: 11px;
+    color: var(--fg-subtle);
+  }
+
   h3 {
-    font-size: 16px;
-    font-weight: 560;
-    letter-spacing: -0.02em;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.025em;
   }
   .group-head p {
-    font-size: 12px;
+    font-size: 11.5px;
     color: var(--fg-subtle);
     margin-top: 4px;
   }
+
   .group ul {
     display: flex;
     flex-direction: column;
-    gap: 12px;
-  }
-  .group li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 15px;
-    color: var(--fg);
+    gap: 8px;
   }
 
-  @media (max-width: 960px) {
+  .skill-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 11px;
+    border-radius: 10px;
+    border: 1px solid var(--line);
+    background: rgb(var(--tint) / 0.02);
+    font-size: 14px;
+    color: var(--fg);
+    transition:
+      opacity 0.25s var(--ease),
+      transform 0.25s var(--spring),
+      border-color 0.25s var(--ease),
+      background 0.25s var(--ease);
+  }
+  .skill-chip:hover {
+    border-color: color-mix(in srgb, var(--g-accent) 45%, transparent);
+    background: color-mix(in srgb, var(--g-accent) 8%, transparent);
+    transform: translateX(3px);
+  }
+  .skill-chip.is-dimmed {
+    opacity: 0.24;
+    transform: scale(0.97);
+  }
+
+  @media (max-width: 1040px) {
     .groups {
       grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
-  @media (max-width: 520px) {
+  @media (max-width: 540px) {
     .groups {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
+    }
+    .leg-btn .d {
+      display: none;
     }
   }
 </style>
+
+<script>
+  const tierBtns = document.querySelectorAll<HTMLButtonElement>('[data-tier-filter]');
+  const skills = document.querySelectorAll<HTMLLIElement>('[data-skill-tier]');
+
+  tierBtns.forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.tierFilter || 'all';
+      tierBtns.forEach((b) => {
+        const active = b === btn;
+        b.classList.toggle('active', active);
+        b.setAttribute('aria-pressed', String(active));
+      });
+      skills.forEach((s) => {
+        const dim = target !== 'all' && s.dataset.skillTier !== target;
+        s.classList.toggle('is-dimmed', dim);
+      });
+    });
+  });
+</script>

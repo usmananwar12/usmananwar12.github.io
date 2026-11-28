@@ -1,17 +1,23 @@
 ---
 import SectionHead from './SectionHead.astro';
+import ChainIcon from './ChainIcon.astro';
 
-// Draft philosophy. Edit these to match how you actually think about engineering.
 const principles = [
   {
+    icon: 'vault' as const,
+    tag: 'INVARIANT_01',
     title: 'Contracts are the product.',
     body: 'Code that holds capital does not get a quiet hotfix. I design for the failure cases first and the happy path second.',
   },
   {
+    icon: 'network' as const,
+    tag: 'FULL_STACK_02',
     title: 'Own the whole path.',
     body: 'From storage layout to the button a user presses, a system is only as clear as its weakest seam. I like working across all of it.',
   },
   {
+    icon: 'shield' as const,
+    tag: 'ADVERSARIAL_03',
     title: 'Invariants over intuition.',
     body: 'Write down what must always be true, then test it, fuzz it and try to break it before someone else does.',
   },
@@ -33,21 +39,28 @@ const interests = [
       An engineer who works <span class="dim">where code meets capital.</span>
     </SectionHead>
 
-    <div class="grid">
-      <div class="bio" data-reveal>
-        <p class="lead">
-          I'm a Computer Science graduate from FAST-NUCES and a full-stack Web3 engineer based in Pakistan.
-        </p>
-        <p>
-          My work sits in the part of Web3 that has to hold up in the real world: protocols that connect PayFi and
-          TradFi dealflow with on-chain liquidity, where the contracts move real value and real businesses depend on
-          them.
-        </p>
-        <p>
-          I'm comfortable across the whole stack: Solidity and Cairo on-chain, Node.js services in the middle,
-          React and Next.js at the edge. I bring that same depth to security: I audit protocol code adversarially
-          before it ships, and I build the tooling that makes those audits sharper.
-        </p>
+    <div class="about-grid">
+      <div class="bio-card glass-card spotlight" data-reveal>
+        <div class="bio-bar mono">
+          <span class="dot-tag"><span class="live" aria-hidden="true"></span>PROFILE // MANIFEST</span>
+          <span class="loc">PK · UTC+5</span>
+        </div>
+
+        <div class="bio">
+          <p class="lead">
+            I'm a Computer Science graduate from FAST-NUCES and a full-stack Web3 engineer based in Pakistan.
+          </p>
+          <p>
+            My work sits in the part of Web3 that has to hold up in the real world: protocols that connect PayFi and
+            TradFi dealflow with on-chain liquidity, where the contracts move real value and real businesses depend on
+            them.
+          </p>
+          <p>
+            I'm comfortable across the whole stack: Solidity and Cairo on-chain, Node.js services in the middle,
+            React and Next.js at the edge. I bring that same depth to security: I audit protocol code adversarially
+            before it ships, and I build the tooling that makes those audits sharper.
+          </p>
+        </div>
 
         <div class="interests">
           <p class="mono label">Areas of interest</p>
@@ -60,12 +73,16 @@ const interests = [
       <ol class="principles">
         {
           principles.map((p, i) => (
-            <li data-reveal style={`--d:${i + 1}`}>
-              <span class="mono num">{String(i + 1).padStart(2, '0')}</span>
-              <div>
-                <h3>{p.title}</h3>
-                <p>{p.body}</p>
+            <li class="p-card glass-card spotlight" data-reveal data-tilt="5" style={`--d:${i + 1}`}>
+              <div class="p-head">
+                <span class="p-icon">
+                  <ChainIcon name={p.icon} size={18} />
+                </span>
+                <span class="mono p-tag">{p.tag}</span>
+                <span class="mono num">{String(i + 1).padStart(2, '0')}</span>
               </div>
+              <h3>{p.title}</h3>
+              <p>{p.body}</p>
             </li>
           ))
         }
@@ -75,31 +92,70 @@ const interests = [
 </section>
 
 <style>
-  .grid {
+  .about-grid {
     display: grid;
-    grid-template-columns: 200px minmax(0, 1fr) minmax(0, 1fr);
-    gap: 48px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 0.95fr);
+    gap: 24px;
+    align-items: start;
   }
+
+  .bio-card {
+    padding: clamp(24px, 3.5vw, 36px);
+    overflow: hidden;
+  }
+  .bio-card > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  .bio-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 18px;
+    margin-bottom: 22px;
+    border-bottom: 1px solid var(--line);
+    font-size: 11.5px;
+    color: var(--fg-subtle);
+    letter-spacing: 0.05em;
+  }
+  .dot-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    color: var(--accent-text);
+  }
+  .dot-tag .live {
+    width: 6px;
+    height: 6px;
+  }
+
   .bio {
-    grid-column: 2;
     display: flex;
     flex-direction: column;
-    gap: 18px;
+    gap: 16px;
     color: var(--fg-muted);
-    font-size: 16.5px;
-    line-height: 1.7;
+    font-size: 16px;
+    line-height: 1.72;
   }
   .bio .lead {
     color: var(--fg);
-    font-size: 19px;
-    line-height: 1.55;
-    letter-spacing: -0.015em;
+    font-size: clamp(18px, 2vw, 21px);
+    font-weight: 540;
+    line-height: 1.48;
+    letter-spacing: -0.02em;
   }
+
   .interests {
-    margin-top: 14px;
+    margin-top: 28px;
+    padding-top: 22px;
+    border-top: 1px dashed var(--line);
   }
   .label {
-    font-size: 12px;
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
     color: var(--fg-subtle);
     margin-bottom: 12px;
   }
@@ -108,41 +164,87 @@ const interests = [
     flex-wrap: wrap;
     gap: 8px;
   }
+
+  /* Principle Cards */
   .principles {
-    grid-column: 3;
-    border-top: 1px solid var(--line);
-  }
-  .principles li {
-    display: grid;
-    grid-template-columns: 36px 1fr;
-    gap: 12px;
-    padding: 24px 0;
-    border-bottom: 1px solid var(--line);
-  }
-  .num {
-    font-size: 12px;
-    color: var(--accent-text);
-    padding-top: 4px;
-  }
-  h3 {
-    font-size: 17px;
-    font-weight: 560;
-    letter-spacing: -0.02em;
-    margin-bottom: 6px;
-  }
-  .principles p {
-    color: var(--fg-muted);
-    font-size: 15px;
-    line-height: 1.6;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
   }
 
-  @media (max-width: 960px) {
-    .grid {
-      grid-template-columns: 1fr;
-    }
-    .bio,
-    .principles {
-      grid-column: auto;
+  .p-card {
+    padding: 22px 24px;
+    overflow: hidden;
+  }
+  .p-card > * {
+    position: relative;
+    z-index: 1;
+  }
+  .p-card::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 16px;
+    bottom: 16px;
+    width: 2.5px;
+    border-radius: 4px;
+    background: linear-gradient(180deg, var(--accent), var(--violet));
+    opacity: 0.45;
+    transition: opacity 0.3s var(--ease), top 0.3s var(--ease), bottom 0.3s var(--ease);
+  }
+  .p-card:hover::after {
+    opacity: 1;
+    top: 8px;
+    bottom: 8px;
+  }
+
+  .p-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 14px;
+  }
+  .p-icon {
+    display: grid;
+    place-items: center;
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: 1px solid rgb(var(--accent-rgb) / 0.28);
+    background: rgb(var(--accent-rgb) / 0.08);
+    color: var(--accent-text);
+    transition: transform 0.3s var(--spring), box-shadow 0.3s var(--ease);
+  }
+  .p-card:hover .p-icon {
+    transform: scale(1.08) rotate(-4deg);
+    box-shadow: 0 0 20px -4px rgb(var(--accent-rgb) / 0.6);
+  }
+  .p-tag {
+    font-size: 11px;
+    color: var(--fg-subtle);
+    letter-spacing: 0.06em;
+  }
+  .num {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--accent-text);
+  }
+
+  h3 {
+    font-size: 18px;
+    font-weight: 590;
+    letter-spacing: -0.025em;
+    margin-bottom: 6px;
+  }
+  .p-card p {
+    color: var(--fg-muted);
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+
+  @media (max-width: 920px) {
+    .about-grid {
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>

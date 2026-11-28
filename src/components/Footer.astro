@@ -5,7 +5,11 @@ const year = new Date().getFullYear();
 
 <footer class="footer">
   <div class="container inner">
-    <p>© {year} {site.name}</p>
+    <p class="copy-text">© {year} {site.name}</p>
+    <p class="mono status-line">
+      <span class="live" aria-hidden="true"></span>
+      <span>EVM · STARKNET · STELLAR · XRPL · SOLANA</span>
+    </p>
     <p class="mono meta">
       <a class="link-underline" href={clean(links.github)} rel="me noopener" target="_blank">GitHub</a>
       <span aria-hidden="true">·</span>
@@ -20,12 +24,26 @@ const year = new Date().getFullYear();
     padding-block: 28px;
     font-size: 13px;
     color: var(--fg-subtle);
+    background: linear-gradient(180deg, transparent, rgb(var(--accent-rgb) / 0.025));
   }
   .inner {
     display: flex;
     justify-content: space-between;
+    align-items: center;
     gap: 16px;
     flex-wrap: wrap;
+  }
+  .status-line {
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    color: var(--fg-muted);
+  }
+  .status-line .live {
+    width: 6px;
+    height: 6px;
   }
   .meta {
     display: flex;

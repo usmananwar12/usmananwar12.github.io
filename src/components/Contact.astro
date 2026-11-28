@@ -5,18 +5,29 @@ import { links, clean, handle, isPlaceholder } from '@/data/site';
 const email = clean(links.email);
 const dev = import.meta.env.DEV;
 
-const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x' | 'telegram'; alt?: string }[] = [
-  { label: 'GitHub', href: links.github, icon: 'github', alt: links.githubAlt },
-  { label: 'LinkedIn', href: links.linkedin, icon: 'linkedin' },
-  { label: 'X', href: links.x, icon: 'x' },
-  { label: 'Telegram', href: links.telegram, icon: 'telegram' },
+const channels: {
+  label: string;
+  href: string;
+  icon: 'github' | 'linkedin' | 'x' | 'telegram';
+  alt?: string;
+  accent: string;
+}[] = [
+  { label: 'GitHub', href: links.github, icon: 'github', alt: links.githubAlt, accent: '#2dffc4' },
+  { label: 'LinkedIn', href: links.linkedin, icon: 'linkedin', accent: '#38d9ff' },
+  { label: 'X', href: links.x, icon: 'x', accent: '#a78bfa' },
+  { label: 'Telegram', href: links.telegram, icon: 'telegram', accent: '#60a5fa' },
 ];
 ---
 
 <section id="contact" class="section contact" aria-labelledby="contact-title">
   <div class="container">
-    <div class="panel spotlight" data-reveal>
-      <p class="section-index"><span>06</span><span aria-hidden="true">/</span><span>Contact</span></p>
+    <div class="panel glass-card beam-card spotlight" data-reveal>
+      <div class="panel-glow" aria-hidden="true"></div>
+
+      <p class="section-index" data-scramble>
+        <span>0x06</span><span aria-hidden="true">//</span><span>Contact</span>
+      </p>
+
       <h2 id="contact-title">
         Building something that has to hold up?{' '}
         <span class="dim">Let's talk.</span>
@@ -28,12 +39,14 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
 
       <div class="email-row">
         <a href={`mailto:${email}`} class:list={['email', { placeholder: dev && isPlaceholder(links.email) }]}>
-          <Icon name="mail" size={20} />
+          <span class="mail-icon">
+            <Icon name="mail" size={20} />
+          </span>
           <span>{email}</span>
         </a>
         <button type="button" class="copy" data-copy={email} aria-label="Copy email address">
-          <Icon name="copy" size={16} class="i-copy" />
-          <Icon name="check" size={16} class="i-check" />
+          <Icon name="copy" size={15} class="i-copy" />
+          <Icon name="check" size={15} class="i-check" />
           <span class="copy-label mono" aria-live="polite">Copy</span>
         </button>
       </div>
@@ -41,8 +54,13 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
       <ul class="channels">
         {
           channels.map((c) => (
-            <li class:list={['channel', { placeholder: dev && isPlaceholder(c.href) }]}>
-              <Icon name={c.icon} size={16} />
+            <li
+              class:list={['channel', { placeholder: dev && isPlaceholder(c.href) }]}
+              style={`--ch-accent:${c.accent}`}
+            >
+              <span class="ch-icon">
+                <Icon name={c.icon} size={17} />
+              </span>
               <a href={clean(c.href)} target="_blank" rel="me noopener noreferrer" class="cl stretched">
                 {c.label}
               </a>
@@ -52,7 +70,7 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
                   also {handle(c.alt)}
                 </a>
               )}
-              <Icon name="arrow-up-right" size={14} class="go" />
+              <Icon name="arrow-up-right" size={15} class="go" />
             </li>
           ))
         }
@@ -64,79 +82,114 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
 <style>
   .panel {
     position: relative;
-    padding: clamp(32px, 6vw, 72px);
-    border: 1px solid var(--line);
-    border-radius: 20px;
-    background:
-      radial-gradient(ellipse 60% 80% at 100% 0%, rgb(var(--accent-rgb) / 0.07), transparent 60%),
-      var(--card-bg);
-    box-shadow: var(--card-shadow);
+    padding: clamp(30px, 5.5vw, 68px);
+    border-radius: 24px;
     overflow: hidden;
   }
+  .panel > *:not(.panel-glow) {
+    position: relative;
+    z-index: 1;
+  }
+
+  .panel-glow {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 65% 85% at 100% 0%, rgb(var(--accent-rgb) / 0.14), transparent 58%),
+      radial-gradient(ellipse 55% 75% at 0% 100%, rgb(var(--violet-rgb) / 0.14), transparent 58%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
   h2 {
     margin-top: 24px;
     font-size: clamp(32px, 5vw, 56px);
     line-height: 1.04;
     letter-spacing: -0.045em;
-    font-weight: 580;
-    max-width: 18ch;
+    font-weight: 620;
+    max-width: 19ch;
     text-wrap: balance;
   }
   .dim {
-    color: var(--fg-subtle);
+    background: linear-gradient(95deg, var(--accent), var(--cyan) 55%, var(--violet-soft));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
+
   .sub {
     margin-top: 20px;
     max-width: 58ch;
     color: var(--fg-muted);
     font-size: 16.5px;
-    line-height: 1.65;
+    line-height: 1.68;
   }
 
   .email-row {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
-    margin-top: 40px;
+    gap: 14px;
+    margin-top: 38px;
   }
   .email {
     display: inline-flex;
     align-items: center;
     gap: 14px;
-    font-size: clamp(18px, 2.6vw, 26px);
+    font-size: clamp(18px, 2.5vw, 25px);
     letter-spacing: -0.025em;
-    font-weight: 500;
-    padding-bottom: 4px;
-    border-bottom: 1px solid var(--line-strong);
-    transition: border-color 0.3s var(--ease);
+    font-weight: 560;
+    padding: 8px 16px 8px 10px;
+    border-radius: 14px;
+    border: 1px solid var(--line);
+    background: rgb(var(--tint) / 0.03);
+    transition: border-color 0.25s var(--ease), background 0.25s var(--ease), box-shadow 0.25s var(--ease);
     word-break: break-all;
   }
   .email:hover {
-    border-color: var(--accent-text);
+    border-color: rgb(var(--accent-rgb) / 0.5);
+    background: rgb(var(--accent-rgb) / 0.08);
+    box-shadow: 0 0 28px -10px rgb(var(--accent-rgb) / 0.55);
   }
-  .email :global(svg) {
+  .mail-icon {
+    display: grid;
+    place-items: center;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
+    background: rgb(var(--accent-rgb) / 0.12);
     color: var(--accent-text);
     flex: none;
   }
+
   .copy {
+    position: relative;
     display: inline-flex;
     align-items: center;
     gap: 8px;
-    height: 34px;
-    padding: 0 12px;
+    height: 40px;
+    padding: 0 16px;
     border-radius: 999px;
     border: 1px solid var(--line-strong);
-    background: transparent;
+    background: rgb(var(--tint) / 0.035);
     color: var(--fg-muted);
     cursor: pointer;
     transition:
-      color 0.2s var(--ease),
-      background 0.2s var(--ease);
+      color 0.25s var(--ease),
+      border-color 0.25s var(--ease),
+      background 0.25s var(--ease),
+      transform 0.25s var(--spring);
   }
   .copy:hover {
     color: var(--fg);
-    background: rgb(var(--tint) / 0.05);
+    border-color: rgb(var(--accent-rgb) / 0.45);
+    background: rgb(var(--accent-rgb) / 0.1);
+    transform: translateY(-1px);
+  }
+  .copy.done {
+    border-color: rgb(var(--accent-rgb) / 0.65);
+    background: rgb(var(--accent-rgb) / 0.16);
+    color: var(--accent-text);
   }
   .copy-label {
     font-size: 12px;
@@ -156,34 +209,48 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
-    margin-top: 48px;
+    margin-top: 42px;
   }
   .channel {
     position: relative;
     display: grid;
     grid-template-columns: auto 1fr auto;
     grid-template-rows: auto auto;
-    column-gap: 10px;
+    column-gap: 11px;
     row-gap: 2px;
     align-items: center;
     align-content: start;
-    padding: 16px 18px;
+    padding: 16px 16px;
     border: 1px solid var(--line);
-    border-radius: 12px;
-    background: rgb(var(--tint) / 0.015);
+    border-radius: 14px;
+    background: rgb(var(--tint) / 0.025);
+    backdrop-filter: blur(10px);
     transition:
       border-color 0.25s var(--ease),
-      background 0.25s var(--ease);
+      background 0.25s var(--ease),
+      transform 0.28s var(--spring),
+      box-shadow 0.25s var(--ease);
   }
   .channel:hover {
-    border-color: var(--line-strong);
-    background: rgb(var(--tint) / 0.035);
+    border-color: color-mix(in srgb, var(--ch-accent) 52%, transparent);
+    background: color-mix(in srgb, var(--ch-accent) 10%, transparent);
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px -12px color-mix(in srgb, var(--ch-accent) 55%, transparent);
+  }
+
+  .ch-icon {
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 9px;
+    background: color-mix(in srgb, var(--ch-accent) 13%, transparent);
+    color: var(--ch-accent);
   }
   .cl {
     font-size: 15px;
-    font-weight: 520;
+    font-weight: 560;
   }
-  /* whole card is clickable via the primary link; the secondary link sits above it */
   .stretched::after {
     content: '';
     position: absolute;
@@ -196,7 +263,7 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
     transition: color 0.2s var(--ease);
   }
   .alt:hover {
-    color: var(--fg);
+    color: var(--accent-text);
   }
   .ch {
     grid-column: 2 / 4;
@@ -210,11 +277,11 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
     grid-column: 3;
     grid-row: 1;
     color: var(--fg-subtle);
-    transition: transform 0.3s var(--ease);
+    transition: transform 0.3s var(--spring), color 0.25s var(--ease);
   }
   .channel:hover :global(.go) {
     transform: translate(2px, -2px);
-    color: var(--fg);
+    color: var(--ch-accent);
   }
 
   @media (max-width: 960px) {
@@ -224,19 +291,49 @@ const channels: { label: string; href: string; icon: 'github' | 'linkedin' | 'x'
   }
   @media (max-width: 560px) {
     .channels {
-      grid-template-columns: 1fr;
+      grid-template-columns: minmax(0, 1fr);
     }
   }
 </style>
 
 <script>
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  const burst = (origin: HTMLElement) => {
+    if (reducedMotion) return;
+    const rect = origin.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const colors = ['#2dffc4', '#38d9ff', '#8b5cf6', '#ffffff'];
+
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('span');
+      const angle = (Math.PI * 2 * i) / 12 + (Math.random() - 0.5) * 0.35;
+      const dist = 28 + Math.random() * 28;
+      p.style.cssText = `
+        position:fixed; left:${cx}px; top:${cy}px; width:5px; height:5px;
+        border-radius:50%; pointer-events:none; z-index:999;
+        background:${colors[i % colors.length]};
+        box-shadow:0 0 8px ${colors[i % colors.length]};
+        transition:transform 0.55s cubic-bezier(0.22,1,0.36,1), opacity 0.55s ease;
+      `;
+      document.body.appendChild(p);
+      requestAnimationFrame(() => {
+        p.style.transform = `translate(${Math.cos(angle) * dist}px, ${Math.sin(angle) * dist}px) scale(0.2)`;
+        p.style.opacity = '0';
+      });
+      setTimeout(() => p.remove(), 600);
+    }
+  };
+
   document.querySelectorAll<HTMLButtonElement>('[data-copy]').forEach((btn) => {
     const label = btn.querySelector('.copy-label');
     btn.addEventListener('click', async () => {
       try {
         await navigator.clipboard.writeText(btn.dataset.copy ?? '');
         btn.classList.add('done');
-        if (label) label.textContent = 'Copied';
+        if (label) label.textContent = 'Copied!';
+        burst(btn);
         setTimeout(() => {
           btn.classList.remove('done');
           if (label) label.textContent = 'Copy';
